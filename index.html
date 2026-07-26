@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grok AI - Extreme Glassmorphism</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Extreme Ambient Background Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+  <div class="glow-orb orb-4"></div>
+
+  <!-- Login Card (Extreme Glass) -->
+  <div class="glass-card login-card" id="loginCard">
+    <div class="glass-shimmer"></div>
+    <div class="brand-badge">GROK AI v2.0</div>
+    <h2>Welcome Back</h2>
+    <p>ഇമെയിൽ നൽകി ലോഗിൻ ചെയ്യൂ (ചാറ്റ് ഹിസ്റ്ററി സേവ് ചെയ്യാൻ)</p>
+    
+    <div class="input-group">
+      <input type="email" id="userEmail" placeholder=" " required>
+      <label for="userEmail">Email Address</label>
+    </div>
+    <button id="sendOtpBtn" class="glass-btn primary-btn" onclick="sendOTP()">
+      <span>Send OTP Code</span>
+    </button>
+
+    <div class="input-group" id="otpGroup" style="display: none; margin-top: 15px;">
+      <input type="text" id="otpInput" placeholder=" " required>
+      <label for="otpInput">Enter 4-Digit OTP</label>
+      <button class="glass-btn accent-btn" onclick="verifyOTP()" style="margin-top: 12px; width: 100%;">
+        <span>Verify & Launch</span>
+      </button>
+    </div>
+
+    <p id="loginStatus" class="status-msg"></p>
+    
+    <div class="divider"><span>OR</span></div>
+    
+    <button class="glass-btn guest-btn" onclick="startGuestChat()">
+      <span>Continue as Guest</span>
+    </button>
+  </div>
+
+  <!-- Main Chat Container (Extreme Glass) -->
+  <div class="glass-card chat-container" id="chatContainer" style="display: none;">
+    <div class="glass-shimmer"></div>
+    
+    <div class="chat-header">
+      <div class="user-info">
+        <div class="avatar-glow">
+          <span class="status-dot"></span>
+        </div>
+        <div>
+          <h3 id="userHeaderTitle">Grok AI Assistant</h3>
+          <span class="subtitle">Next-Gen Intelligence</span>
+        </div>
+      </div>
+      <button class="glass-btn logout-btn" id="exitBtn" onclick="exitChat()">Exit</button>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot-message">
+        <div class="msg-content">നമസ്കാരം! ഞാൻ എങ്ങനെ സഹായിക്കേണ്ടത്?</div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="userInput" placeholder="Ask Grok anything..." onkeypress="handleKeyPress(event)">
+      <button class="glass-btn send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

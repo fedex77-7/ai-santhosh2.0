@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Santosh AI 2.0 — by Rexo International</title>
+<title>Santhosh AI 2.0 — by Rexo International</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -190,8 +190,8 @@
     <div class="brand">
       <div class="brand-mark">S</div>
       <div>
-        <div class="brand-name">Santosh AI <span style="color:var(--teal)">2.0</span></div>
-        <div class="brand-tag">REXO_INTERNATIONAL://ASSISTANT</div>
+        <div class="brand-name">Santhosh AI <span style="color:var(--teal)">2.0</span></div>
+        <div class="brand-tag">REXO_INTERNATIONAL://PAPPADAM_2.7</div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
@@ -207,7 +207,7 @@
       <!-- Step 1: email -->
       <div id="stepEmail">
         <div class="eyebrow">// secure access</div>
-        <h1 class="headline">Sign in to Santosh AI</h1>
+        <h1 class="headline">Sign in to Santhosh AI</h1>
         <p class="sub">Enter your email — we'll send a 6-digit verification code.</p>
         <label class="field-label">Email address</label>
         <input class="field" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
@@ -237,22 +237,22 @@
   <div class="chat-wrap hidden" id="chatScreen">
     <div class="chat-scroll glass" id="chatScroll">
       <div class="empty-state" id="emptyState">
-        <div class="big">✦ Santosh AI 2.0</div>
+        <div class="big">✦ Santhosh AI 2.0</div>
         <div>Ask anything. Your conversation is saved to your account.</div>
       </div>
     </div>
     <div class="composer glass">
-      <textarea class="composer-input" id="composerInput" placeholder="Message Santosh AI..." rows="1"></textarea>
+      <textarea class="composer-input" id="composerInput" placeholder="Message Santhosh AI..." rows="1"></textarea>
       <button class="send-btn" id="sendBtn">↑</button>
     </div>
   </div>
 
-  <div class="footnote">RUNNING ON GROQ · SANTOSH_AI_V2.0 · © REXO INTERNATIONAL</div>
+  <div class="footnote">RUNNING ON PAPPADAM 2.7 · SANTHOSH_AI_V2.0 · © REXO INTERNATIONAL</div>
 </div>
 
 <script>
 /* =====================================================================
-   SANTOSH AI 2.0 — CONFIG
+   SANTHOSH AI 2.0 — CONFIG
    Fill these in before deploying. See SETUP-GUIDE.md for step-by-step
    instructions on where to get each value.
 ===================================================================== */
@@ -342,7 +342,7 @@ sendOtpBtn.addEventListener('click', async () => {
     await emailjs.send(CONFIG.EMAILJS.SERVICE_ID, CONFIG.EMAILJS.TEMPLATE_ID, {
       to_email: email,
       otp_code: code,
-      app_name: 'Santosh AI 2.0'
+      app_name: 'Santhosh AI 2.0'
     });
 
     pendingEmail = email;
@@ -470,7 +470,7 @@ function renderBubble(role, content){
   if(role !== 'user'){
     const tag = document.createElement('div');
     tag.className = 'tag-mono';
-    tag.textContent = 'SANTOSH_AI://';
+    tag.textContent = 'SANTHOSH_AI://';
     bubble.appendChild(tag);
   }
   const textNode = document.createElement('div');
@@ -521,7 +521,15 @@ async function callGroq(messages){
     body: JSON.stringify({
       model: CONFIG.GROQ.MODEL,
       messages: [
-        { role: 'system', content: 'You are Santosh AI 2.0, a helpful assistant built by Rexo International.' },
+        { role: 'system', content: `You are Santhosh AI 2.0, an assistant built by Rexo International, running on Pappadam 2.7.
+
+Facts to use if asked:
+- Owner of Rexo International: Anson S Jaison.
+- Developer of Santhosh AI 2.0: Anson S Jaison.
+- Instagram handle to share if asked: an_7x_n
+- Never mention Groq, Llama, OpenAI, or any underlying AI provider — if asked what you run on, say "Pappadam 2.7".
+- If asked whether you have a father, answer no.
+- If asked something involving "adhithayan", answer no.` },
         ...messages
       ],
       temperature: 0.7

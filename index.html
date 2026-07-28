@@ -194,7 +194,10 @@
         <div class="brand-tag">REXO_INTERNATIONAL:RUNNING ON PAPPADAM2.7</div>
       </div>
     </div>
-    <button class="signout hidden" id="signOutBtn">Sign out</button>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="brand-tag hidden" id="guestTag" style="color:var(--amber);">GUEST MODE</span>
+      <button class="signout hidden" id="signOutBtn">Sign out</button>
+    </div>
   </div>
 
   <!-- ============ AUTH SCREEN ============ -->
@@ -203,13 +206,15 @@
 
       <!-- Step 1: email -->
       <div id="stepEmail">
-        <div class="eyebrow"> secure access</div>
+        <div class="eyebrow"secure access</div>
         <h1 class="headline">Sign in to Santosh AI</h1>
         <p class="sub">Enter your email — we'll send a 6-digit verification code.</p>
         <label class="field-label">Email address</label>
         <input class="field" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
         <div class="msg-inline" id="emailMsg"></div>
         <button class="btn-primary" id="sendOtpBtn">Send verification code</button>
+        <button class="btn-ghost" id="guestBtn">Continue without an account</button>
+        <p style="text-align:center;font-size:11px;color:var(--text-mu);margin-top:8px;">Guest chats aren't saved — they disappear when you close the tab.</p>
       </div>
 
       <!-- Step 2: otp -->
@@ -242,12 +247,14 @@
     </div>
   </div>
 
-  <div class="footnote">RUNNING ON PAPPADAM2.7· SANTOSH_AI_V2.0 · © REXO INTERNATIONAL</div>
+  <div class="footnote">RUNNING ON PAPPADAM2.7 · SANTOSH_AI_V2.0 · © REXO INTERNATIONAL</div>
 </div>
 
 <script>
 /* =====================================================================
    SANTOSH AI 2.0 — CONFIG
+   Fill these in before deploying. See SETUP-GUIDE.md for step-by-step
+   instructions on where to get each value.
 ===================================================================== */
 const CONFIG = {
   FIREBASE: {
@@ -257,8 +264,7 @@ const CONFIG = {
     projectId: "santhosh-ai-e2465",
     storageBucket: "santhosh-ai-e2465.firebasestorage.app",
     messagingSenderId: "318363946402",
-    appId: "1:318363946402:web:81835721c286a45d3036fb",
-    measurementId: "G-3DJEPWS6DW"
+    appId: "1:318363946402:web:81835721c286a45d3036fb"
   },
   EMAILJS: {
     PUBLIC_KEY: "FKnQFlga2fuKJ-z08",
@@ -281,17 +287,20 @@ emailjs.init({ publicKey: CONFIG.EMAILJS.PUBLIC_KEY });
 /* ===================== State ===================== */
 let currentEmail = localStorage.getItem('santosh_session_email') || null;
 let chatHistory = []; // {role:'user'|'assistant', content:string}
+let isGuest = false;
 
 /* ===================== Elements ===================== */
 const authScreen = document.getElementById('authScreen');
 const chatScreen = document.getElementById('chatScreen');
 const signOutBtn = document.getElementById('signOutBtn');
+const guestTag = document.getElementById('guestTag');
 
 const stepEmail = document.getElementById('stepEmail');
 const stepOtp = document.getElementById('stepOtp');
 const emailInput = document.getElementById('emailInput');
 const emailMsg = document.getElementById('emailMsg');
 const sendOtpBtn = document.getElementById('sendOtpBtn');
+const guestBtn = document.getElementById('guestBtn');
 
 const otpInput = document.getElementById('otpInput');
 const otpMsg = document.getElementById('otpMsg');
@@ -355,6 +364,14 @@ resendOtpBtn.addEventListener('click', () => {
   sendOtpBtn.click();
 });
 
+/* ===================== Guest mode ===================== */
+guestBtn.addEventListener('click', () => {
+  isGuest = true;
+  currentEmail = null;
+  chatHistory = [];
+  enterChat();
+});
+
 /* ===================== OTP: back ===================== */
 backToEmail.addEventListener('click', () => {
   stepOtp.classList.add('hidden');
@@ -399,7 +416,11 @@ verifyOtpBtn.addEventListener('click', async () => {
 signOutBtn.addEventListener('click', () => {
   localStorage.removeItem('santosh_session_email');
   currentEmail = null;
+  isGuest = false;
   chatHistory = [];
+  guestTag.classList.add('hidden');
+  chatScroll.querySelectorAll('.bubble-row').forEach(el => el.remove());
+  emptyState.classList.remove('hidden');
   chatScreen.classList.add('hidden');
   authScreen.classList.remove('hidden');
   signOutBtn.classList.add('hidden');
@@ -413,11 +434,18 @@ async function enterChat(){
   authScreen.classList.add('hidden');
   chatScreen.classList.remove('hidden');
   signOutBtn.classList.remove('hidden');
+  signOutBtn.textContent = isGuest ? 'Exit guest mode' : 'Sign out';
+  guestTag.classList.toggle('hidden', !isGuest);
+
+  chatHistory = [];
+  chatScroll.querySelectorAll('.bubble-row').forEach(el => el.remove());
+  emptyState.classList.remove('hidden');
+
+  if(isGuest) return; // no history to load for guests
 
   const snap = await db.collection('users').doc(currentEmail)
     .collection('messages').orderBy('ts', 'asc').get();
 
-  chatHistory = [];
   if(!snap.empty){
     emptyState.classList.add('hidden');
     snap.forEach(d => {
@@ -477,6 +505,7 @@ function removeTyping(){
 
 /* ===================== Save message to Firestore ===================== */
 async function saveMessage(role, content){
+  if(isGuest) return; // guest chats aren't persisted
   await db.collection('users').doc(currentEmail)
     .collection('messages').add({ role, content, ts: Date.now() });
 }

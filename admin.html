@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Santhosh AI 2.0 — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{ --bg:#0a0d16; --glass:rgba(255,255,255,.06); --brd:rgba(255,255,255,.14);
+    --violet:#7c5cff; --teal:#2dd4bf; --amber:#ffb86b; --danger:#ff6b6b; --hi:#f5f7ff; --mu:#93a0b4; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--hi); font-family:'Inter',sans-serif; min-height:100vh; padding:20px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-size:22px; margin:0 0 4px;}
+  .sub{color:var(--mu); font-size:13px; margin:0 0 24px;}
+  .card{background:var(--glass); border:1px solid var(--brd); border-radius:16px; padding:20px; margin-bottom:20px;}
+  .gate input{width:100%; max-width:320px; padding:12px 14px; border-radius:10px; border:1px solid var(--brd); background:rgba(255,255,255,.04); color:var(--hi); font-size:15px; margin-bottom:12px;}
+  .gate button, .stats button{padding:11px 18px; border-radius:10px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16; font-weight:600; font-family:'Space Grotesk',sans-serif;}
+  .warning{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#ffb3b3; padding:14px 16px; border-radius:12px; font-size:13px; line-height:1.5; margin-bottom:20px;}
+  .stats-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;}
+  .stat{background:var(--glass); border:1px solid var(--brd); border-radius:14px; padding:16px 20px; min-width:140px;}
+  .stat .num{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700;}
+  .stat .label{font-size:12px; color:var(--mu);}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; color:var(--mu); font-weight:500; padding:10px; border-bottom:1px solid var(--brd); font-size:12px;}
+  td{padding:10px; border-bottom:1px solid rgba(255,255,255,.06);}
+  .badge{padding:3px 9px; border-radius:20px; font-size:11px; font-family:'JetBrains Mono',monospace;}
+  .badge.ok{background:rgba(45,212,191,.15); color:var(--teal);}
+  .badge.banned{background:rgba(255,107,107,.15); color:var(--danger);}
+  .btn-sm{padding:6px 12px; border-radius:8px; border:1px solid var(--brd); background:transparent; color:var(--hi); cursor:pointer; font-size:12px;}
+  .btn-sm.danger{border-color:var(--danger); color:var(--danger);}
+  .btn-sm.ok{border-color:var(--teal); color:var(--teal);}
+  .hidden{display:none !important;}
+  .msg{font-size:13px; color:var(--danger); margin-top:6px;}
+  input[type="text"], input[type="password"]{font-family:'Inter',sans-serif;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="card gate">
+  <h1>Santhosh AI 2.0 — Admin</h1>
+  <p class="sub">Enter the admin passcode to continue.</p>
+  <input type="password" id="passcodeInput" placeholder="Admin passcode">
+  <br>
+  <button id="unlockBtn">Unlock</button>
+  <div class="msg" id="gateMsg"></div>
+</div>
+
+<div id="panel" class="hidden">
+  <h1>Santhosh AI 2.0 — Admin Panel</h1>
+  <p class="sub">Manage registered users. Passwords are never shown here — only hashed values exist in the database.</p>
+
+  <div class="warning">
+    <strong>⚠️ Read this:</strong> This admin gate is a client-side passcode check only — it is
+    <em>not</em> real authentication. Because this app has no backend server, your Firestore
+    security rules must currently allow open read/write for the app to function at all, which
+    means anyone with your Firestore project ID could technically query user data directly,
+    bypassing this page entirely. Passwords are hashed+salted (not plaintext), but for real
+    admin-only protection you'd need Firebase Authentication with admin custom claims, or a
+    small backend — ask your developer (Anson S Jaison) about upgrading this if it becomes a
+    real product with real users.
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="num" id="statTotalUsers">–</div><div class="label">Registered accounts</div></div>
+    <div class="stat"><div class="num" id="statBanned">–</div><div class="label">Banned accounts</div></div>
+    <div class="stat"><div class="num" id="statGuests">–</div><div class="label">Guest sessions started</div></div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>Username</th><th>Email</th><th>Strikes</th><th>Status</th><th>Created</th><th>Action</th></tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+/* Set the same Firebase config as your main app */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyANotcjrN-oGPa97KsqpJQmTp7E0eXCmhA",
+  authDomain: "santhosh-ai-e2465.firebaseapp.com",
+  databaseURL: "https://santhosh-ai-e2465-default-rtdb.firebaseio.com",
+  projectId: "santhosh-ai-e2465",
+  storageBucket: "santhosh-ai-e2465.firebasestorage.app",
+  messagingSenderId: "318363946402",
+  appId: "1:318363946402:web:81835721c286a45d3036fb"
+};
+
+/* The admin key is now checked server-side by netlify/functions/admin-ban.js.
+   Set the same value as the ADMIN_KEY environment variable in Netlify. */
+let sessionAdminKey = null;
+
+unlockBtn.addEventListener('click', () => {
+  sessionAdminKey = passcodeInput.value;
+  gate.classList.add('hidden');
+  panel.classList.remove('hidden');
+  loadUsers();
+});
+
+async function loadUsers(){
+  const snap = await db.collection('users').get();
+  const tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = '';
+  let total = 0, banned = 0;
+
+  snap.forEach(doc => {
+    const u = doc.data();
+    total++;
+    if(u.banned) banned++;
+    const row = document.createElement('tr');
+    const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—';
+    row.innerHTML = `
+      <td>${escapeHtml(u.username || '—')}</td>
+      <td>${escapeHtml(u.email || doc.id)}</td>
+      <td>${u.strikes || 0}</td>
+      <td><span class="badge ${u.banned ? 'banned' : 'ok'}">${u.banned ? 'Banned' : 'Active'}</span></td>
+      <td>${created}</td>
+      <td></td>
+    `;
+    const actionCell = row.querySelector('td:last-child');
+    const btn = document.createElement('button');
+    btn.className = 'btn-sm ' + (u.banned ? 'ok' : 'danger');
+    btn.textContent = u.banned ? 'Unban' : 'Ban';
+    btn.addEventListener('click', async () => {
+      const res = await fetch('/.netlify/functions/admin-ban', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminKey: sessionAdminKey, email: u.email, banned: !u.banned })
+      });
+      if(!res.ok){ alert('Ban action failed — check the admin-ban function is deployed and ADMIN_KEY is set.'); return; }
+      loadUsers();
+    });
+    actionCell.appendChild(btn);
+    tbody.appendChild(row);
+  });
+
+  document.getElementById('statTotalUsers').textContent = total;
+  document.getElementById('statBanned').textContent = banned;
+
+  try{
+    const guestDoc = await db.collection('meta').doc('guestCounter').get();
+    document.getElementById('statGuests').textContent = guestDoc.exists ? (guestDoc.data().count || 0) : 0;
+  }catch(e){
+    document.getElementById('statGuests').textContent = '—';
+  }
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

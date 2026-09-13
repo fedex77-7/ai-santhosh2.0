@@ -1,159 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Santhosh AI 2.0 — Admin</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080b">
+<title>Admin — Santhosh AI 2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
-  :root{ --bg:#0a0d16; --glass:rgba(255,255,255,.06); --brd:rgba(255,255,255,.14);
-    --violet:#7c5cff; --teal:#2dd4bf; --amber:#ffb86b; --danger:#ff6b6b; --hi:#f5f7ff; --mu:#93a0b4; }
-  *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--hi); font-family:'Inter',sans-serif; min-height:100vh; padding:20px;}
-  h1{font-family:'Space Grotesk',sans-serif; font-size:22px; margin:0 0 4px;}
-  .sub{color:var(--mu); font-size:13px; margin:0 0 24px;}
-  .card{background:var(--glass); border:1px solid var(--brd); border-radius:16px; padding:20px; margin-bottom:20px;}
-  .gate input{width:100%; max-width:320px; padding:12px 14px; border-radius:10px; border:1px solid var(--brd); background:rgba(255,255,255,.04); color:var(--hi); font-size:15px; margin-bottom:12px;}
-  .gate button, .stats button{padding:11px 18px; border-radius:10px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16; font-weight:600; font-family:'Space Grotesk',sans-serif;}
-  .warning{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3); color:#ffb3b3; padding:14px 16px; border-radius:12px; font-size:13px; line-height:1.5; margin-bottom:20px;}
-  .stats-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;}
-  .stat{background:var(--glass); border:1px solid var(--brd); border-radius:14px; padding:16px 20px; min-width:140px;}
-  .stat .num{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700;}
-  .stat .label{font-size:12px; color:var(--mu);}
-  table{width:100%; border-collapse:collapse; font-size:13px;}
-  th{text-align:left; color:var(--mu); font-weight:500; padding:10px; border-bottom:1px solid var(--brd); font-size:12px;}
-  td{padding:10px; border-bottom:1px solid rgba(255,255,255,.06);}
-  .badge{padding:3px 9px; border-radius:20px; font-size:11px; font-family:'JetBrains Mono',monospace;}
-  .badge.ok{background:rgba(45,212,191,.15); color:var(--teal);}
-  .badge.banned{background:rgba(255,107,107,.15); color:var(--danger);}
-  .btn-sm{padding:6px 12px; border-radius:8px; border:1px solid var(--brd); background:transparent; color:var(--hi); cursor:pointer; font-size:12px;}
-  .btn-sm.danger{border-color:var(--danger); color:var(--danger);}
-  .btn-sm.ok{border-color:var(--teal); color:var(--teal);}
-  .hidden{display:none !important;}
-  .msg{font-size:13px; color:var(--danger); margin-top:6px;}
-  input[type="text"], input[type="password"]{font-family:'Inter',sans-serif;}
+:root{--bg:#07080b;--text:#f7f5ef;--muted:#a6a5ad;--glass:rgba(255,255,255,.055);--glass-strong:rgba(255,255,255,.085);--border:rgba(255,255,255,.13);--gold:#f4ce89;--green:#6fe0b6;--violet:#7c5cff;--teal:#2dd4bf;--amber:#ffb86b;--danger:#ff7777;--shadow:0 30px 90px rgba(0,0,0,.42);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;min-height:100%;}
+body{font-family:"Inter",sans-serif;color:var(--text);background:var(--bg);padding:20px 16px 60px;}
+.aurora{position:fixed;inset:-25%;z-index:-10;overflow:hidden;}
+.blob{position:absolute;width:46vw;height:46vw;min-width:280px;min-height:280px;border-radius:50%;filter:blur(70px);opacity:.2;}
+.blob.one{left:-8%;top:0;background:var(--violet);}
+.blob.two{right:-10%;top:20%;background:var(--teal);}
+.blob.three{left:28%;bottom:-18%;background:var(--amber);}
+.wrap{max-width:840px;margin:0 auto;}
+.glass{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025));border:1px solid var(--border);backdrop-filter:blur(14px) saturate(120%);-webkit-backdrop-filter:blur(14px) saturate(120%);box-shadow:var(--shadow);border-radius:22px;}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;}
+h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(24px,6vw,30px);margin:8px 0 20px;letter-spacing:-.03em;}
+
+.gate{padding:30px 26px;max-width:380px;margin:12vh auto 0;text-align:center;}
+.gate p{color:var(--muted);font-size:13px;margin:8px 0 18px;}
+.input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.12);color:var(--text);outline:none;font:14px Inter;margin-bottom:12px;}
+.btn{width:100%;border:1px solid var(--border);background:linear-gradient(135deg,rgba(244,206,137,.23),rgba(111,224,182,.12));color:var(--text);border-radius:12px;padding:12px;font-weight:700;cursor:pointer;}
+.gate-msg{color:var(--danger);font-size:12px;margin-top:8px;min-height:16px;}
+
+.hidden{display:none !important;}
+.warning{background:rgba(255,119,119,.08);border:1px solid rgba(255,119,119,.28);color:#ffb3b3;padding:14px 16px;border-radius:14px;font-size:12.5px;line-height:1.55;margin-bottom:20px;}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.stat{padding:14px 18px;min-width:130px;flex:1;}
+.stat .num{font-family:"Space Grotesk",sans-serif;font-size:24px;font-weight:700;}
+.stat .label{font-size:11px;color:var(--muted);margin-top:2px;}
+.table-card{padding:6px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px;}
+th{text-align:left;color:var(--muted);font-weight:600;padding:12px 10px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.06);}
+.badge{padding:3px 10px;border-radius:20px;font-size:10.5px;font-family:"JetBrains Mono",monospace;}
+.badge.ok{background:rgba(111,224,182,.15);color:var(--green);}
+.badge.banned{background:rgba(255,119,119,.15);color:var(--danger);}
+.badge.premium{background:rgba(244,206,137,.15);color:var(--gold);}
+.btn-sm{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:11.5px;}
+.btn-sm.danger{border-color:var(--danger);color:var(--danger);}
+.btn-sm.ok{border-color:var(--green);color:var(--green);}
 </style>
 </head>
 <body>
+<div class="aurora"><div class="blob one"></div><div class="blob two"></div><div class="blob three"></div></div>
 
-<div id="gate" class="card gate">
-  <h1>Santhosh AI 2.0 — Admin</h1>
-  <p class="sub">Enter the admin passcode to continue.</p>
-  <input type="password" id="passcodeInput" placeholder="Admin passcode">
-  <br>
-  <button id="unlockBtn">Unlock</button>
-  <div class="msg" id="gateMsg"></div>
+<div id="gate" class="glass gate">
+<div class="eyebrow">REXO_INTERNATIONAL://PAPPADAM_2.7</div>
+<h1 style="margin-bottom:2px;">Admin access</h1>
+<p>Enter the admin passcode to continue.</p>
+<input type="password" id="passcodeInput" class="input" placeholder="Admin passcode">
+<button class="btn" id="unlockBtn">Unlock</button>
+<div class="gate-msg" id="gateMsg"></div>
 </div>
 
-<div id="panel" class="hidden">
-  <h1>Santhosh AI 2.0 — Admin Panel</h1>
-  <p class="sub">Manage registered users. Passwords are never shown here — only hashed values exist in the database.</p>
+<div id="panel" class="wrap hidden">
+<div class="eyebrow">REXO_INTERNATIONAL://PAPPADAM_2.7</div>
+<h1>Admin panel</h1>
 
-  <div class="warning">
-    <strong>⚠️ Read this:</strong> This admin gate is a client-side passcode check only — it is
-    <em>not</em> real authentication. Because this app has no backend server, your Firestore
-    security rules must currently allow open read/write for the app to function at all, which
-    means anyone with your Firestore project ID could technically query user data directly,
-    bypassing this page entirely. Passwords are hashed+salted (not plaintext), but for real
-    admin-only protection you'd need Firebase Authentication with admin custom claims, or a
-    small backend — ask your developer (Anson S Jaison) about upgrading this if it becomes a
-    real product with real users.
-  </div>
+<div class="warning glass" style="padding:16px 18px;">
+<strong>⚠️ Read this:</strong> this passcode gate is a client-side check only — not real authentication. Because this app has no backend server, Firestore rules must allow open read/write for the app to function, meaning anyone with the project ID could technically query user data directly. Passwords are hashed+salted (never plain text), but real admin-only protection needs Firebase Authentication with custom claims, or a small backend.
+</div>
 
-  <div class="stats-row">
-    <div class="stat"><div class="num" id="statTotalUsers">–</div><div class="label">Registered accounts</div></div>
-    <div class="stat"><div class="num" id="statBanned">–</div><div class="label">Banned accounts</div></div>
-    <div class="stat"><div class="num" id="statGuests">–</div><div class="label">Guest sessions started</div></div>
-  </div>
+<div class="stats-row">
+<div class="stat glass"><div class="num" id="statTotal">–</div><div class="label">Registered accounts</div></div>
+<div class="stat glass"><div class="num" id="statBanned">–</div><div class="label">Banned accounts</div></div>
+<div class="stat glass"><div class="num" id="statPremium">–</div><div class="label">Premium accounts</div></div>
+</div>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr><th>Username</th><th>Email</th><th>Strikes</th><th>Status</th><th>Created</th><th>Action</th></tr>
-      </thead>
-      <tbody id="userTableBody"></tbody>
-    </table>
-  </div>
+<div class="table-card glass">
+<table>
+<thead><tr><th>Username</th><th>Email</th><th>Strikes</th><th>Plan</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
+<tbody id="userTableBody"></tbody>
+</table>
+</div>
 </div>
 
 <script>
-/* Set the same Firebase config as your main app */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyANotcjrN-oGPa97KsqpJQmTp7E0eXCmhA",
-  authDomain: "santhosh-ai-e2465.firebaseapp.com",
-  databaseURL: "https://santhosh-ai-e2465-default-rtdb.firebaseio.com",
-  projectId: "santhosh-ai-e2465",
-  storageBucket: "santhosh-ai-e2465.firebasestorage.app",
-  messagingSenderId: "318363946402",
-  appId: "1:318363946402:web:81835721c286a45d3036fb"
+    apiKey: "AIzaSyANotcjrN-oGPa97KsqpJQmTp7E0eXCmhA",
+    authDomain: "santhosh-ai-e2465.firebaseapp.com",
+    databaseURL: "https://santhosh-ai-e2465-default-rtdb.firebaseio.com",
+    projectId: "santhosh-ai-e2465",
+    storageBucket: "santhosh-ai-e2465.firebasestorage.app",
+    messagingSenderId: "318363946402",
+    appId: "1:318363946402:web:81835721c286a45d3036fb"
 };
 
-/* The admin key is now checked server-side by netlify/functions/admin-ban.js.
-   Set the same value as the ADMIN_KEY environment variable in Netlify. */
-let sessionAdminKey = null;
+// Change this before deploying. Reminder: client-side gate only, see warning above.
+const ADMIN_PASSCODE = "Anson123admin";
 
-unlockBtn.addEventListener('click', () => {
-  sessionAdminKey = passcodeInput.value;
-  gate.classList.add('hidden');
-  panel.classList.remove('hidden');
-  loadUsers();
-});
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.firestore();
 
-async function loadUsers(){
-  const snap = await db.collection('users').get();
-  const tbody = document.getElementById('userTableBody');
-  tbody.innerHTML = '';
-  let total = 0, banned = 0;
+const $ = id => document.getElementById(id);
 
-  snap.forEach(doc => {
-    const u = doc.data();
-    total++;
-    if(u.banned) banned++;
-    const row = document.createElement('tr');
-    const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—';
-    row.innerHTML = `
-      <td>${escapeHtml(u.username || '—')}</td>
-      <td>${escapeHtml(u.email || doc.id)}</td>
-      <td>${u.strikes || 0}</td>
-      <td><span class="badge ${u.banned ? 'banned' : 'ok'}">${u.banned ? 'Banned' : 'Active'}</span></td>
-      <td>${created}</td>
-      <td></td>
-    `;
-    const actionCell = row.querySelector('td:last-child');
-    const btn = document.createElement('button');
-    btn.className = 'btn-sm ' + (u.banned ? 'ok' : 'danger');
-    btn.textContent = u.banned ? 'Unban' : 'Ban';
-    btn.addEventListener('click', async () => {
-      const res = await fetch('/.netlify/functions/admin-ban', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminKey: sessionAdminKey, email: u.email, banned: !u.banned })
-      });
-      if(!res.ok){ alert('Ban action failed — check the admin-ban function is deployed and ADMIN_KEY is set.'); return; }
-      loadUsers();
-    });
-    actionCell.appendChild(btn);
-    tbody.appendChild(row);
-  });
+$("unlockBtn").onclick = () => {
+    if($("passcodeInput").value === ADMIN_PASSCODE){
+        $("gate").classList.add("hidden");
+        $("panel").classList.remove("hidden");
+        loadUsers();
+    }else{
+        $("gateMsg").textContent = "Incorrect passcode.";
+    }
+};
 
-  document.getElementById('statTotalUsers').textContent = total;
-  document.getElementById('statBanned').textContent = banned;
-
-  try{
-    const guestDoc = await db.collection('meta').doc('guestCounter').get();
-    document.getElementById('statGuests').textContent = guestDoc.exists ? (guestDoc.data().count || 0) : 0;
-  }catch(e){
-    document.getElementById('statGuests').textContent = '—';
-  }
+function escapeHTML(value){
+    return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
 }
 
-function escapeHtml(str){
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
+async function loadUsers(){
+    const snap = await db.collection("users").get();
+    const tbody = $("userTableBody");
+    tbody.innerHTML = "";
+    let total = 0, banned = 0, premium = 0;
+
+    snap.forEach(doc => {
+        const u = doc.data();
+        total++;
+        if(u.banned) banned++;
+        if(u.isPremium) premium++;
+        const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHTML(u.username || "—")}</td>
+            <td>${escapeHTML(u.email || doc.id)}</td>
+            <td>${u.strikes || 0}</td>
+            <td>${u.isPremium ? '<span class="badge premium">Premium</span>' : "Free"}</td>
+            <td><span class="badge ${u.banned ? "banned" : "ok"}">${u.banned ? "Banned" : "Active"}</span></td>
+            <td>${created}</td>
+            <td></td>
+        `;
+        const actionCell = row.querySelector("td:last-child");
+        const btn = document.createElement("button");
+        btn.className = "btn-sm " + (u.banned ? "ok" : "danger");
+        btn.textContent = u.banned ? "Unban" : "Ban";
+        btn.onclick = async () => {
+            await db.collection("users").doc(doc.id).set({ banned: !u.banned }, { merge:true });
+            loadUsers();
+        };
+        actionCell.appendChild(btn);
+        tbody.appendChild(row);
+    });
+
+    $("statTotal").textContent = total;
+    $("statBanned").textContent = banned;
+    $("statPremium").textContent = premium;
 }
 </script>
 </body>

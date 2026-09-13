@@ -1,320 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Santhosh AI 2.0 — by Rexo International</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Santhosh AI 2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
-  :root{
-    --bg-0:#0a0d16; --glass:rgba(255,255,255,0.06); --glass-brd:rgba(255,255,255,0.14);
-    --violet:#7c5cff; --teal:#2dd4bf; --amber:#ffb86b;
-    --text-hi:#f5f7ff; --text-mu:#93a0b4; --danger:#ff6b6b;
-  }
-  [data-theme="light"]{
-    --bg-0:#eef0f6; --glass:rgba(20,20,30,0.05); --glass-brd:rgba(20,20,30,0.12);
-    --text-hi:#151725; --text-mu:#5b6478;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%; margin:0;}
-  body{font-family:'Inter',sans-serif; color:var(--text-hi); background:var(--bg-0); overflow-x:hidden; min-height:100vh; transition:background .3s,color .3s;}
-  .aurora{position:fixed; inset:0; z-index:0; overflow:hidden; background:var(--bg-0);}
-  .aurora span{position:absolute; border-radius:50%; filter:blur(70px); opacity:.5; mix-blend-mode:screen; animation:drift 22s ease-in-out infinite;}
-  .aurora span:nth-child(1){width:38vw;height:38vw;background:var(--violet);top:-8%;left:-6%;}
-  .aurora span:nth-child(2){width:32vw;height:32vw;background:var(--teal);bottom:-10%;right:-8%;animation-delay:-7s;}
-  .aurora span:nth-child(3){width:26vw;height:26vw;background:var(--amber);top:40%;left:60%;animation-delay:-14s;opacity:.3;}
-  @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(6%,8%) scale(1.12);}66%{transform:translate(-5%,-6%) scale(.95);}}
-  .app{position:relative; z-index:2; min-height:100vh; display:flex;}
-  .glass{background:var(--glass); border:1px solid var(--glass-brd); backdrop-filter:blur(18px) saturate(140%); -webkit-backdrop-filter:blur(18px) saturate(140%); border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,.25);}
-
-  /* ---------- Sidebar ---------- */
-  .sidebar{width:260px; flex:0 0 auto; display:flex; flex-direction:column; padding:14px; gap:10px; height:100vh; position:sticky; top:0; transition:margin-left .25s;}
-  .sidebar.collapsed{margin-left:-260px;}
-  .side-brand{display:flex; align-items:center; gap:8px; padding:8px 4px 4px;}
-  .brand-mark{width:30px;height:30px;border-radius:9px; background:linear-gradient(135deg,var(--violet),var(--teal)); display:flex;align-items:center;justify-content:center;font-weight:700; font-family:'Space Grotesk',sans-serif; color:#0a0d16; flex:0 0 auto;}
-  .side-brand-name{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; flex:1;}
-  .sidebar-toggle-inline{width:28px;height:28px;border-radius:8px; border:1px solid var(--glass-brd); background:transparent; color:var(--text-mu); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:11px; flex:0 0 auto;}
-  .sidebar-toggle-inline:hover{color:var(--text-hi); border-color:var(--violet);}
-  .sidebar-toggle-topbar{width:36px;height:36px;border-radius:10px; border:1px solid var(--glass-brd); background:transparent; color:var(--text-mu); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; flex:0 0 auto; margin-right:4px;}
-  .sidebar-toggle-topbar:hover{color:var(--text-hi); border-color:var(--violet);}
-  .new-chat-btn{display:flex; align-items:center; gap:8px; padding:11px 14px; border-radius:12px; border:1px solid var(--glass-brd); background:transparent; color:var(--text-hi); cursor:pointer; font-size:13.5px; font-family:'Inter',sans-serif;}
-  .new-chat-btn:hover{border-color:var(--violet);}
-  .conv-list{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:3px; margin-top:4px;}
-  .conv-item{display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:10px; cursor:pointer; font-size:13px; color:var(--text-mu); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .conv-item:hover{background:var(--glass);}
-  .conv-item.active{background:var(--glass); color:var(--text-hi);}
-  .conv-item .conv-title{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .conv-del{opacity:0; background:none; border:none; color:var(--text-mu); cursor:pointer; font-size:12px;}
-  .conv-item:hover .conv-del{opacity:.7;}
-  .conv-del:hover{color:var(--danger); opacity:1 !important;}
-  .sidebar-footer{border-top:1px solid var(--glass-brd); padding-top:10px; display:flex; flex-direction:column; gap:6px;}
-  .footer-btn{display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:10px; cursor:pointer; font-size:13px; color:var(--text-mu); background:none; border:none; text-align:left; font-family:'Inter',sans-serif;}
-  .footer-btn:hover{background:var(--glass); color:var(--text-hi);}
-
-  /* ---------- Main column ---------- */
-  .main-col{flex:1; display:flex; flex-direction:column; min-width:0;}
-  .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 20px; margin:14px; border-radius:16px;}
-  .brand{display:flex; align-items:center; gap:10px;}
-  .brand-name{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px;}
-  .brand-tag{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-mu); letter-spacing:.5px;}
-  .topbar-right{display:flex; align-items:center; gap:8px; margin-right:8px;}
-  .icon-btn{width:36px;height:36px;border-radius:10px; border:1px solid var(--glass-brd); background:transparent; color:var(--text-mu); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px;}
-  .icon-btn:hover{color:var(--text-hi); border-color:var(--violet);}
-  .signout{background:transparent;border:1px solid var(--glass-brd);color:var(--text-mu); padding:8px 14px;border-radius:12px;font-size:13px;cursor:pointer;}
-  .signout:hover{color:var(--text-hi);border-color:var(--violet);}
-
-  .center-wrap{flex:1; display:flex; align-items:center; justify-content:center; padding:20px;}
-  .auth-card{width:100%; max-width:380px; padding:32px 26px;}
-  .mode-tabs{display:flex; gap:8px; margin-bottom:22px; background:var(--glass); padding:4px; border-radius:12px;}
-  .mode-tab{flex:1; text-align:center; padding:9px; border-radius:9px; font-size:13px; cursor:pointer; color:var(--text-mu); font-family:'Space Grotesk',sans-serif; font-weight:600;}
-  .mode-tab.active{background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16;}
-  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--teal); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;}
-  h1.headline{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin:0 0 8px;}
-  .sub{color:var(--text-mu); font-size:14px; margin:0 0 24px; line-height:1.5;}
-  label.field-label{display:block; font-size:12px; color:var(--text-mu); margin:0 0 6px;}
-  input.field{width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--glass-brd); background:var(--glass); color:var(--text-hi); font-size:15px; margin-bottom:16px; outline:none;}
-  input.field:focus{border-color:var(--violet);}
-  input.otp-input{letter-spacing:8px; font-family:'JetBrains Mono',monospace; font-size:20px; text-align:center;}
-  .btn-primary{width:100%; padding:13px 14px; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16; font-weight:600; font-size:15px; font-family:'Space Grotesk',sans-serif;}
-  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
-  .btn-ghost{width:100%; padding:11px; margin-top:10px; border-radius:12px; border:1px solid var(--glass-brd); background:transparent; color:var(--text-mu); cursor:pointer; font-size:13px;}
-  .btn-ghost:hover{color:var(--text-hi);}
-  .msg-inline{font-size:13px; margin-top:-6px; margin-bottom:14px; min-height:16px;}
-  .msg-inline.err{color:var(--danger);} .msg-inline.ok{color:var(--teal);}
-  .toggle-line{text-align:center; font-size:13px; color:var(--text-mu); margin-top:18px;}
-  .toggle-line a{color:var(--teal); text-decoration:none; cursor:pointer;}
-  .strength-wrap{margin:-10px 0 16px;}
-  .strength-bar{height:5px; border-radius:3px; background:rgba(128,128,128,.15); overflow:hidden;}
-  .strength-fill{height:100%; width:0%; transition:width .2s, background .2s;}
-  .strength-label{font-size:11px; margin-top:5px; color:var(--text-mu); font-family:'JetBrains Mono',monospace;}
-
-  .chat-wrap{flex:1; display:flex; flex-direction:column; padding:0 14px 14px; max-width:820px; width:100%; margin:0 auto;}
-  .chat-scroll{flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; border-radius:20px; margin-bottom:12px;}
-  .bubble-row{display:flex; gap:10px; max-width:100%;}
-  .bubble-row.user{flex-direction:row-reverse;}
-  .avatar{width:30px;height:30px;border-radius:9px;flex:0 0 auto;display:flex;align-items:center;justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;}
-  .avatar.ai{background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16;}
-  .avatar.user{background:var(--glass); color:var(--text-hi); border:1px solid var(--glass-brd);}
-  .bubble-col{display:flex; flex-direction:column; max-width:78%;}
-  .bubble-row.user .bubble-col{align-items:flex-end;}
-  .bubble{padding:12px 15px; border-radius:16px; font-size:14.5px; line-height:1.55; white-space:pre-wrap; word-wrap:break-word;}
-  .bubble.ai{background:var(--glass); border:1px solid var(--glass-brd); border-top-left-radius:4px;}
-  .bubble.user{background:linear-gradient(135deg,rgba(124,92,255,.3),rgba(45,212,191,.2)); border:1px solid var(--glass-brd); border-top-right-radius:4px;}
-  .tag-mono{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--teal); margin-bottom:4px;}
-  .del-btn{background:none; border:none; color:var(--text-mu); font-size:11px; cursor:pointer; padding:3px 6px; opacity:.6;}
-  .del-btn:hover{opacity:1; color:var(--danger);}
-  .typing{display:flex; gap:4px; padding:4px 0;}
-  .typing span{width:6px;height:6px;border-radius:50%;background:var(--text-mu);animation:blink 1.2s infinite;}
-  .typing span:nth-child(2){animation-delay:.2s;} .typing span:nth-child(3){animation-delay:.4s;}
-  @keyframes blink{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
-  .composer{display:flex; gap:10px; padding:10px; align-items:flex-end;}
-  textarea.composer-input{flex:1; resize:none; max-height:120px; padding:12px 14px; border-radius:14px; border:1px solid var(--glass-brd); background:var(--glass); color:var(--text-hi); font-size:14.5px; outline:none;}
-  textarea.composer-input:focus{border-color:var(--violet);}
-  .send-btn{width:46px;height:46px;border-radius:14px;border:none;cursor:pointer;flex:0 0 auto; background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16; font-size:18px; display:flex;align-items:center;justify-content:center; font-weight:700;}
-  .send-btn:disabled{opacity:.4; cursor:not-allowed;}
-  .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-mu);gap:8px;padding:20px;}
-  .empty-state .big{font-family:'Space Grotesk',sans-serif; font-size:20px; color:var(--text-hi);}
-  ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-thumb{background:rgba(128,128,128,.25); border-radius:10px;}
-  .footnote{text-align:center; font-size:11px; color:var(--text-mu); padding:8px; font-family:'JetBrains Mono',monospace;}
-  .hidden{display:none !important;}
-  .warn-bubble{background:rgba(255,107,107,.12); border:1px solid rgba(255,107,107,.35); color:#ffb3b3;}
-  .premium-banner{background:linear-gradient(135deg,rgba(124,92,255,.2),rgba(45,212,191,.15)); border:1px solid var(--glass-brd); border-radius:12px; padding:12px 14px; font-size:12.5px; color:var(--text-mu); margin:0 14px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .premium-banner button{padding:7px 12px; border-radius:8px; border:none; background:linear-gradient(135deg,var(--violet),var(--teal)); color:#0a0d16; font-weight:600; cursor:pointer; font-size:12px; white-space:nowrap;}
-
-  /* ---------- Settings modal ---------- */
-  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:50; display:flex; align-items:center; justify-content:center; padding:20px;}
-  .modal{width:100%; max-width:420px; padding:26px; max-height:85vh; overflow-y:auto;}
-  .modal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
-  .modal-header h2{font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0;}
-  .modal-close{background:none; border:none; color:var(--text-mu); font-size:20px; cursor:pointer;}
-  .settings-section{margin-bottom:22px;}
-  .settings-label{font-size:12px; color:var(--text-mu); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; font-family:'JetBrains Mono',monospace;}
-  .theme-toggle-row{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--glass); border:1px solid var(--glass-brd); border-radius:12px;}
-  .switch{position:relative; width:46px; height:26px; flex:0 0 auto;}
-  .switch input{opacity:0; width:0; height:0;}
-  .switch-track{position:absolute; inset:0; background:rgba(128,128,128,.3); border-radius:20px; cursor:pointer; transition:.2s;}
-  .switch-track:before{content:''; position:absolute; width:20px;height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s;}
-  .switch input:checked + .switch-track{background:linear-gradient(135deg,var(--violet),var(--teal));}
-  .switch input:checked + .switch-track:before{transform:translateX(20px);}
-  .bg-swatches{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
-  .bg-swatch{aspect-ratio:1; border-radius:12px; cursor:pointer; border:2px solid transparent; position:relative;}
-  .bg-swatch.selected{border-color:var(--teal);}
-  .premium-row{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--glass); border:1px solid var(--glass-brd); border-radius:12px; font-size:13px;}
+:root{--bg:#07080b;--bg2:#0c0d11;--text:#f7f5ef;--muted:#a6a5ad;--glass:rgba(255,255,255,.055);--glass-strong:rgba(255,255,255,.085);--border:rgba(255,255,255,.13);--gold:#f4ce89;--green:#6fe0b6;--violet:#7c5cff;--teal:#2dd4bf;--amber:#ffb86b;--danger:#ff7777;--radius:20px;--shadow:0 30px 90px rgba(0,0,0,.42);--ease:cubic-bezier(.2,.85,.2,1);}
+body.light{--bg:#eeeeeb;--bg2:#f7f7f4;--text:#17171b;--muted:#68676e;--glass:rgba(255,255,255,.58);--glass-strong:rgba(255,255,255,.78);--border:rgba(0,0,0,.11);--shadow:0 30px 80px rgba(0,0,0,.13);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;}
+body{font-family:"Inter",sans-serif;color:var(--text);background:var(--bg);}
+.aurora{position:fixed;inset:-25%;z-index:-10;overflow:hidden;background:radial-gradient(circle at center,rgba(255,255,255,.025),transparent 45%);}
+.blob{position:absolute;width:46vw;height:46vw;min-width:330px;min-height:330px;border-radius:50%;filter:blur(100px);opacity:.35;animation:auroraMove 19s ease-in-out infinite alternate;}
+.blob.one{left:-8%;top:0;background:var(--violet);}
+.blob.two{right:-10%;top:20%;background:var(--teal);animation-delay:-6s;}
+.blob.three{left:28%;bottom:-18%;background:var(--amber);animation-delay:-11s;}
+@keyframes auroraMove{0%{transform:translate3d(-5%,-3%,0) scale(.95) rotate(0deg);}35%{transform:translate3d(7%,5%,0) scale(1.12) rotate(12deg);}70%{transform:translate3d(-3%,10%,0) scale(1.02) rotate(-8deg);}100%{transform:translate3d(8%,3%,0) scale(.94) rotate(5deg);}}
+.glass{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025));border:1px solid var(--border);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%);box-shadow:var(--shadow);}
+.auth-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 35%,rgba(124,92,255,.09),transparent 38%),rgba(3,3,6,.22);transition:opacity .55s var(--ease),visibility .55s;}
+.auth-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.auth-card{width:min(480px,100%);padding:30px;border-radius:28px;position:relative;overflow:hidden;animation:authEnter .8s var(--ease) both;}
+.auth-card::before{content:"";position:absolute;width:260px;height:260px;right:-130px;top:-130px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,255,.24),transparent 70%);animation:glowPulse 4s ease-in-out infinite;}
+.auth-card::after{content:"";position:absolute;inset:-100%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.06),transparent 20%);animation:borderSweep 10s linear infinite;pointer-events:none;}
+.auth-content{position:relative;z-index:2;}
+@keyframes authEnter{from{opacity:0;transform:translateY(40px) scale(.94);filter:blur(10px);}to{opacity:1;transform:none;filter:none;}}
+@keyframes glowPulse{0%,100%{opacity:.45;transform:scale(.9);}50%{opacity:.9;transform:scale(1.15);}}
+@keyframes borderSweep{to{transform:rotate(360deg);}}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;}
+.brand{margin-top:7px;font-family:"Space Grotesk",sans-serif;font-size:25px;font-weight:700;letter-spacing:-.04em;}
+.auth-title{margin:25px 0 10px;font-family:"Space Grotesk",sans-serif;font-size:clamp(40px,9vw,58px);line-height:.94;letter-spacing:-.06em;}
+.auth-description{color:var(--muted);font-size:14px;line-height:1.6;}
+.recommendation{display:flex;gap:12px;margin:22px 0 17px;padding:15px;border-radius:17px;background:linear-gradient(135deg,rgba(244,206,137,.11),rgba(111,224,182,.045));border:1px solid rgba(244,206,137,.2);animation:recommendationFloat 4s ease-in-out infinite;}
+@keyframes recommendationFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.recommendation-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:10px;background:rgba(244,206,137,.12);color:var(--gold);animation:iconPulse 2.5s ease-in-out infinite;}
+@keyframes iconPulse{50%{transform:rotate(8deg) scale(1.08);}}
+.recommendation strong{font-size:13px;}
+.recommendation p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:1.5;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;margin-bottom:15px;border-radius:15px;background:rgba(0,0,0,.14);}
+.auth-tab{border:0;border-radius:11px;padding:11px;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;transition:background .3s,color .3s,transform .3s;}
+.auth-tab.active{background:var(--glass-strong);color:var(--text);box-shadow:0 8px 25px rgba(0,0,0,.14);}
+.field{margin:11px 0;}
+.field label{display:block;margin-bottom:6px;color:var(--muted);font-size:11px;}
+.input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:rgba(0,0,0,.12);color:var(--text);outline:none;font:14px Inter;transition:border .25s,box-shadow .25s,transform .25s;}
+.input:focus{border-color:rgba(111,224,182,.55);box-shadow:0 0 0 4px rgba(111,224,182,.07);transform:translateY(-1px);}
+.strength-track{height:5px;margin-top:8px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.07);}
+.strength-bar{width:0;height:100%;border-radius:inherit;transition:width .45s var(--ease);}
+.strength-label{margin-top:5px;font-size:10px;color:var(--muted);}
+.btn{border:1px solid var(--border);background:var(--glass);color:var(--text);border-radius:14px;padding:12px 15px;font-weight:700;cursor:pointer;transition:transform .25s var(--ease),background .25s,border .25s,box-shadow .25s;position:relative;overflow:hidden;}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.12),transparent 75%);transform:translateX(-120%);transition:.7s;}
+.btn:hover::after{transform:translateX(120%);}
+.btn:hover{transform:translateY(-2px);background:var(--glass-strong);}
+.btn:active{transform:scale(.96);}
+.btn.primary{background:linear-gradient(135deg,rgba(244,206,137,.23),rgba(111,224,182,.12));border-color:rgba(244,206,137,.3);}
+.btn.wide{width:100%;margin-top:9px;}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.guest-button{width:100%;margin-top:9px;padding:10px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;transition:.25s;}
+.guest-button:hover{color:var(--gold);transform:translateX(3px);}
+.app{width:100%;height:100dvh;display:flex;position:relative;}
+.sidebar{width:285px;flex:0 0 285px;margin:12px;padding:13px;border-radius:23px;display:flex;flex-direction:column;gap:11px;overflow:hidden;z-index:20;transition:width .45s var(--ease),flex-basis .45s var(--ease),transform .45s var(--ease),opacity .3s;}
+.sidebar.collapsed{width:0;flex-basis:0;padding:0;margin-left:0;margin-right:0;opacity:0;border-width:0;}
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sidebar-brand{font:700 17px "Space Grotesk";}
+.icon-button{width:38px;height:38px;display:grid;place-items:center;padding:0;}
+.main{min-width:0;flex:1;position:relative;display:flex;flex-direction:column;}
+.topbar{min-height:66px;padding:12px max(13px,3vw);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);z-index:10;}
+.top-left{display:flex;align-items:center;gap:9px;}
+.status{padding:7px 10px;border-radius:99px;border:1px solid rgba(111,224,182,.2);background:rgba(111,224,182,.07);color:var(--green);font:600 9px "JetBrains Mono";letter-spacing:.08em;}
+.chat{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:25px clamp(12px,5vw,65px) 145px;scroll-behavior:smooth;scrollbar-width:thin;contain:content;}
+.welcome{max-width:820px;margin:10vh auto 0;text-align:center;animation:welcomeEnter .8s var(--ease) both;}
+@keyframes welcomeEnter{from{opacity:0;transform:translateY(25px) scale(.97);}to{opacity:1;transform:none;}}
+.welcome-symbol{display:inline-block;margin-bottom:10px;color:var(--gold);animation:welcomeSpark 2.5s ease-in-out infinite;}
+@keyframes welcomeSpark{0%,100%{transform:scale(1) rotate(0);}50%{transform:scale(1.2) rotate(10deg);filter:drop-shadow(0 0 14px var(--gold));}}
+.welcome h1{margin:0;font:700 clamp(40px,8vw,76px) "Space Grotesk";line-height:.95;letter-spacing:-.065em;}
+.welcome p{max-width:600px;margin:16px auto 0;color:var(--muted);line-height:1.65;font-size:14px;}
+.messages{max-width:900px;margin:auto;}
+.message{display:flex;margin:20px 0;animation:messageIn .48s var(--ease) both;}
+@keyframes messageIn{from{opacity:0;transform:translateY(14px) scale(.985);}to{opacity:1;transform:none;}}
+.message.user{justify-content:flex-end;}
+.message-inner{max-width:min(760px,90%);}
+.bubble{padding:14px 16px;border-radius:18px;border:1px solid var(--border);background:var(--glass);font-size:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 10px 35px rgba(0,0,0,.09);}
+.message.user .bubble{border-bottom-right-radius:5px;background:linear-gradient(135deg,rgba(244,206,137,.11),rgba(255,255,255,.035));}
+.message.ai .bubble{border-bottom-left-radius:5px;}
+.message-actions{display:flex;gap:3px;margin-top:4px;opacity:.65;transition:.2s;}
+.message:hover .message-actions{opacity:1;}
+.action{border:0;background:transparent;color:var(--muted);padding:5px 8px;border-radius:8px;font-size:10px;cursor:pointer;transition:.2s;}
+.action:hover{color:var(--text);background:var(--glass-strong);}
+.thinking{display:flex;align-items:center;gap:8px;min-height:24px;}
+.thinking-dots{display:flex;gap:4px;}
+.thinking-dots span{width:6px;height:6px;border-radius:50%;background:currentColor;animation:thinkingBounce .65s ease-in-out infinite alternate;}
+.thinking-dots span:nth-child(2){animation-delay:.12s;}
+.thinking-dots span:nth-child(3){animation-delay:.24s;}
+@keyframes thinkingBounce{from{transform:translateY(0);opacity:.35;}to{transform:translateY(-5px);opacity:1;}}
+.thinking-text{color:var(--muted);font-size:10px;animation:thinkingText 1.5s ease-in-out infinite;}
+@keyframes thinkingText{0%,100%{opacity:.45;}50%{opacity:1;}}
+.composer-area{position:absolute;left:0;right:0;bottom:0;padding:12px max(12px,4vw) max(14px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 35%);z-index:8;}
+.composer{max-width:900px;margin:auto;padding:7px;border-radius:21px;display:flex;align-items:flex-end;gap:6px;transition:transform .3s,box-shadow .3s;}
+.composer:focus-within{box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 0 1px rgba(111,224,182,.13);}
+textarea{flex:1;min-height:44px;max-height:150px;resize:none;padding:12px;border:0;outline:0;background:transparent;color:var(--text);font:14px "Inter";line-height:1.5;}
+textarea::placeholder{color:var(--muted);}
+.send-button{width:44px;height:44px;padding:0;border-radius:14px;flex:none;display:grid;place-items:center;font-size:19px;transition:transform .25s var(--ease);}
+.send-button:not(:disabled):hover{transform:translateY(-3px) rotate(-3deg);}
+.send-button.sending{animation:sendPulse .6s ease-in-out infinite alternate;}
+@keyframes sendPulse{to{transform:scale(.92);}}
+.disclaimer{max-width:900px;margin:5px auto 0;text-align:center;font-size:9px;color:var(--muted);}
+.modal-backdrop{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:18px;background:rgba(0,0,0,.5);backdrop-filter:blur(12px);}
+.modal-backdrop.open{display:grid;animation:backdropIn .3s ease;}
+@keyframes backdropIn{from{opacity:0;}to{opacity:1;}}
+.modal{width:min(440px,100%);padding:21px;border-radius:23px;animation:modalEnter .42s var(--ease);}
+@keyframes modalEnter{from{opacity:0;transform:translateY(30px) scale(.94);}to{opacity:1;transform:none;}}
+.palette-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px;}
+.palette{height:45px;border-radius:13px;border:2px solid transparent;cursor:pointer;transition:.25s;}
+.palette:hover{transform:translateY(-2px);}
+.palette.selected{border-color:var(--text);}
+.conversation-list{overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding-right:2px;}
+.conversation{display:flex;align-items:center;gap:5px;padding:9px;border-radius:12px;color:var(--muted);cursor:pointer;transition:background .2s,transform .2s,color .2s;}
+.conversation:hover{color:var(--text);background:var(--glass-strong);transform:translateX(2px);}
+.conversation.active{color:var(--text);background:var(--glass-strong);}
+.conversation-title{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;}
+.toast{position:fixed;left:50%;bottom:95px;z-index:200;max-width:calc(100% - 30px);padding:11px 15px;border-radius:13px;background:#16171c;border:1px solid #30313a;color:white;font-size:12px;pointer-events:none;opacity:0;transform:translate(-50%,20px) scale(.96);transition:opacity .3s var(--ease),transform .3s var(--ease);}
+.toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
+@media(max-width:760px){
+.blob{width:65vw;height:65vw;filter:blur(45px);opacity:.22;animation-duration:26s;will-change:transform;}
+.glass{backdrop-filter:blur(12px) saturate(120%);-webkit-backdrop-filter:blur(12px) saturate(120%);}
+.auth-card::after{display:none;}
+.auth-card::before{animation:none;opacity:.5;}
+.btn::after{display:none;}
+.recommendation{animation:none;}
+.recommendation-icon{animation:none;}
+.welcome-symbol{animation:none;}
+.message{animation-duration:.28s;}
+.auth-screen{padding:12px;}
+.auth-card{padding:22px;border-radius:23px;}
+.auth-title{font-size:42px;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:min(88vw,330px);margin:0;border-radius:0 25px 25px 0;transform:translateX(0);transition:transform .3s var(--ease);}
+.sidebar.collapsed{width:min(88vw,330px);padding:13px;margin:0;opacity:1;transform:translateX(-105%);border-width:1px;}
+.topbar{min-height:60px;padding:9px 11px;}
+.chat{padding:15px 10px 130px;}
+.welcome{margin-top:11vh;}
+.welcome h1{font-size:43px;}
+.welcome p{font-size:13px;padding:0 10px;}
+.message{margin:16px 0;}
+.message-inner{max-width:93%;}
+.bubble{font-size:13px;padding:12px 13px;}
+.composer-area{padding:9px 9px max(11px,env(safe-area-inset-bottom));}
+.composer{border-radius:18px;}
+.input{font-size:16px;}
+textarea{font-size:16px;padding:11px 9px;}
+.send-button{width:42px;height:42px;}
+.disclaimer{font-size:8px;}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}}
 </style>
 </head>
 <body>
+<div class="aurora"><div class="blob one"></div><div class="blob two"></div><div class="blob three"></div></div>
 
-<div class="aurora"><span></span><span></span><span></span></div>
+<section class="auth-screen" id="authScreen">
+<div class="auth-card glass">
+<div class="auth-content">
+<div class="eyebrow">REXO_INTERNATIONAL://PAPPADAM_2.7</div>
+<div class="brand">Santhosh AI 2.0</div>
+<div class="auth-title">Think faster.<br>Build better.</div>
+<div class="auth-description">A fast, focused AI experience built by <strong>Rexo International</strong>.</div>
+<div class="recommendation">
+<div class="recommendation-icon">✦</div>
+<div><strong>Recommended: Create an account</strong>
+<p>Save conversations, keep your chat history, and get the complete Santhosh AI experience.</p></div>
+</div>
+<div class="auth-tabs">
+<button class="auth-tab active" id="loginTab">Log in</button>
+<button class="auth-tab" id="signupTab">Create account</button>
+</div>
+<form id="authForm">
+<div class="field" id="emailField" style="display:none">
+<label>Email</label>
+<input class="input" id="email" type="email" autocomplete="email">
+</div>
+<div class="field">
+<label>Username</label>
+<input class="input" id="username" maxlength="20" autocomplete="username" required>
+</div>
+<div class="field">
+<label>Password</label>
+<input class="input" id="password" type="password" minlength="8" autocomplete="current-password" required>
+<div class="strength-track"><div class="strength-bar" id="strengthBar"></div></div>
+<div class="strength-label" id="strengthLabel"></div>
+</div>
+<div class="field" id="otpField" style="display:none">
+<label>6-digit verification code</label>
+<input class="input" id="otp" inputmode="numeric" maxlength="6">
+</div>
+<div id="consentWrap" style="display:none;font-size:10px;color:var(--muted);margin-top:9px;">
+<label><input type="checkbox" id="consent"> I agree to the <a href="legal.html" target="_blank" style="color:var(--gold)">Privacy Policy and Terms</a></label>
+</div>
+<button class="btn primary wide" id="authButton">Log in</button>
+</form>
+<button class="guest-button" id="guestButton">Continue as guest →</button>
+<div id="authHint" style="text-align:center;color:var(--muted);font-size:10px;margin-top:10px;"></div>
+</div>
+</div>
+</section>
 
 <div class="app">
+<aside class="sidebar glass collapsed" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-brand">Santhosh AI</div>
+<button class="btn icon-button" id="sidebarToggle">‹</button>
+</div>
+<button class="btn new-chat" id="newChat">＋ New chat</button>
+<div class="eyebrow" style="padding:7px 4px 0">Conversations</div>
+<div class="conversation-list" id="conversationList"></div>
+</aside>
 
-  <div class="sidebar glass hidden" id="sidebar">
-    <div class="side-brand">
-      <div class="brand-mark">S</div>
-      <div class="side-brand-name">Santhosh AI 2.0</div>
-      <button class="sidebar-toggle-inline" id="sidebarCollapseBtn" title="Collapse sidebar">◀</button>
-    </div>
-    <button class="new-chat-btn" id="newChatBtn">＋ New chat</button>
-    <div class="conv-list" id="convList"></div>
-    <div class="sidebar-footer">
-      <button class="footer-btn" id="openSettingsBtn">⚙ Settings</button>
-      <button class="footer-btn" id="sidebarSignOutBtn">↪ Sign out</button>
-    </div>
-  </div>
-
-  <div class="main-col">
-    <div class="topbar glass">
-      <button class="sidebar-toggle-topbar hidden" id="sidebarExpandBtn" title="Open sidebar">☰</button>
-      <div class="brand">
-        <div>
-          <div class="brand-name">Santhosh AI <span style="color:var(--teal)">2.0</span></div>
-          <div class="brand-tag">REXO_INTERNATIONAL://PAPPADAM_2.7</div>
-        </div>
-      </div>
-      <div class="topbar-right">
-        <span class="brand-tag hidden" id="guestTag" style="color:var(--amber);">GUEST MODE</span>
-        <button class="icon-btn hidden" id="topSettingsBtn" title="Settings">⚙</button>
-        <button class="signout hidden" id="signOutBtn">Sign out</button>
-      </div>
-    </div>
-
-    <!-- ============ AUTH SCREEN ============ -->
-    <div class="center-wrap" id="authScreen">
-      <div class="auth-card glass">
-        <div class="mode-tabs" id="modeTabs">
-          <div class="mode-tab active" id="tabLogin">Log in</div>
-          <div class="mode-tab" id="tabSignup">Sign up</div>
-        </div>
-
-        <div id="stepLogin">
-          <div class="eyebrow">// welcome back</div>
-          <h1 class="headline">Log in</h1>
-          <p class="sub">Use the username and password you created.</p>
-          <label class="field-label">Username</label>
-          <input class="field" type="text" id="loginUsername" placeholder="yourusername" autocomplete="username">
-          <label class="field-label">Password</label>
-          <input class="field" type="password" id="loginPassword" placeholder="········" autocomplete="current-password">
-          <div class="msg-inline" id="loginMsg"></div>
-          <button class="btn-primary" id="loginBtn">Log in</button>
-          <button class="btn-ghost" id="guestBtnLogin">Continue without an account</button>
-          <p style="text-align:center;font-size:11px;color:var(--text-mu);margin-top:8px;">Guest chats aren't saved — they disappear when you close the tab.</p>
-        </div>
-
-        <div id="stepEmail" class="hidden">
-          <div class="eyebrow">// create account</div>
-          <h1 class="headline">Verify your email</h1>
-          <p class="sub">We'll send a 6-digit code to confirm it's really you.</p>
-          <label class="field-label">Email address</label>
-          <input class="field" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
-          <div class="msg-inline" id="emailMsg"></div>
-          <button class="btn-primary" id="sendOtpBtn">Send verification code</button>
-        </div>
-
-        <div id="stepOtp" class="hidden">
-          <div class="eyebrow">// verification</div>
-          <h1 class="headline">Enter the code</h1>
-          <p class="sub">We sent a 6-digit code to <span id="otpEmailShow" style="color:var(--text-hi)"></span></p>
-          <label class="field-label">Verification code</label>
-          <input class="field otp-input" type="text" id="otpInput" placeholder="······" maxlength="6" inputmode="numeric">
-          <div class="msg-inline" id="otpMsg"></div>
-          <button class="btn-primary" id="verifyOtpBtn">Verify &amp; continue</button>
-          <button class="btn-ghost" id="resendOtpBtn">Resend code</button>
-          <div class="toggle-line"><a id="backToEmail">← use a different email</a></div>
-        </div>
-
-        <div id="stepProfile" class="hidden">
-          <div class="eyebrow">// almost done</div>
-          <h1 class="headline">Set up your account</h1>
-          <p class="sub">Choose a username and password.</p>
-          <label class="field-label">Username</label>
-          <input class="field" type="text" id="profileUsername" placeholder="yourusername">
-          <label class="field-label">Password (min. 8 characters)</label>
-          <input class="field" type="password" id="profilePassword" placeholder="········">
-          <div class="strength-wrap">
-            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-            <div class="strength-label" id="strengthLabel">&nbsp;</div>
-          </div>
-          <div class="msg-inline" id="profileMsg"></div>
-          <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--text-mu); margin:-4px 0 16px; line-height:1.4;">
-            <input type="checkbox" id="consentCheck" style="margin-top:3px;">
-            <span>I agree to the <a href="legal.html" target="_blank" style="color:var(--teal);">Privacy Policy &amp; Terms of Use</a>, and consent to my email and account data being stored to provide this service.</span>
-          </label>
-          <button class="btn-primary" id="createAccountBtn">Create account</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ CHAT SCREEN ============ -->
-    <div class="chat-wrap hidden" id="chatScreen">
-      <div class="premium-banner hidden" id="premiumBanner">
-        <span id="premiumBannerText">Free plan: 20 messages/day</span>
-        <button id="upgradeBtn">Upgrade free →</button>
-      </div>
-      <div class="chat-scroll glass" id="chatScroll">
-        <div class="empty-state" id="emptyState">
-          <div class="big">✦ Santhosh AI 2.0</div>
-          <div>Ask anything. Your conversation is saved to your account.</div>
-        </div>
-      </div>
-      <div class="composer glass">
-        <textarea class="composer-input" id="composerInput" placeholder="Message Santhosh AI..." rows="1"></textarea>
-        <button class="send-btn" id="sendBtn">↑</button>
-      </div>
-    </div>
-
-    <div class="footnote">RUNNING ON PAPPADAM 2.7 · SANTHOSH_AI_V2.0 · © REXO INTERNATIONAL</div>
-  </div>
+<main class="main">
+<header class="topbar glass">
+<div class="top-left">
+<button class="btn icon-button" id="openSidebar">☰</button>
+<span class="status" id="modeBadge">GUEST MODE</span>
+</div>
+<div><button class="btn icon-button" id="settingsButton">⚙</button></div>
+</header>
+<section class="chat" id="chatArea">
+<div class="welcome" id="welcome">
+<div class="eyebrow"><span class="welcome-symbol">✦</span> PAPPADAM 2.7</div>
+<h1>What will you create?</h1>
+<p>Ask questions, explore ideas, write, code, learn, plan, or build something new.</p>
+</div>
+<div class="messages" id="messages"></div>
+</section>
+<div class="composer-area">
+<form class="composer glass" id="composer">
+<textarea id="prompt" rows="1" placeholder="Message Santhosh AI…" autocomplete="off"></textarea>
+<button class="btn primary send-button" id="sendButton" aria-label="Send">↑</button>
+</form>
+<div class="disclaimer">Santhosh AI can make mistakes. Check important information.</div>
+</div>
+</main>
 </div>
 
-<!-- ============ SETTINGS MODAL ============ -->
-<div class="modal-overlay hidden" id="settingsOverlay">
-  <div class="modal glass">
-    <div class="modal-header">
-      <h2>Settings</h2>
-      <button class="modal-close" id="closeSettingsBtn">✕</button>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-label">Appearance</div>
-      <div class="theme-toggle-row">
-        <span>Dark mode</span>
-        <label class="switch">
-          <input type="checkbox" id="darkToggle" checked>
-          <span class="switch-track"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-label">Background theme</div>
-      <div class="bg-swatches" id="bgSwatches">
-        <div class="bg-swatch selected" data-theme="aurora" style="background:linear-gradient(135deg,#7c5cff,#2dd4bf);"></div>
-        <div class="bg-swatch" data-theme="sunset" style="background:linear-gradient(135deg,#ff6b6b,#ffb86b);"></div>
-        <div class="bg-swatch" data-theme="ocean" style="background:linear-gradient(135deg,#2dd4bf,#3b82f6);"></div>
-        <div class="bg-swatch" data-theme="mono" style="background:linear-gradient(135deg,#6b7280,#374151);"></div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-label">Plan</div>
-      <div class="premium-row">
-        <span id="planStatusText">Free plan</span>
-        <button class="footer-btn" id="settingsUpgradeBtn" style="color:var(--teal);">Upgrade free →</button>
-      </div>
-    </div>
-  </div>
+<div class="modal-backdrop" id="settingsModal">
+<div class="modal glass">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div><div class="eyebrow">Preferences</div><h3 style="margin:4px 0">Settings</h3></div>
+<button class="btn icon-button" id="closeSettings">×</button>
 </div>
+<div style="margin-top:18px">
+<label style="font-size:12px;color:var(--muted);">Appearance</label>
+<button class="btn wide" id="themeButton">Toggle light / dark</button>
+</div>
+<div style="margin-top:17px">
+<label style="font-size:12px;color:var(--muted);">Background palette</label>
+<div class="palette-grid">
+<button class="palette" data-palette="aurora" style="background:linear-gradient(135deg,#7c5cff,#2dd4bf,#ffb86b);"></button>
+<button class="palette" data-palette="sunset" style="background:linear-gradient(135deg,#ff6b6b,#ffb86b,#8b5cf6);"></button>
+<button class="palette" data-palette="ocean" style="background:linear-gradient(135deg,#2563eb,#2dd4bf,#172554);"></button>
+<button class="palette" data-palette="mono" style="background:linear-gradient(135deg,#111,#777,#eee);"></button>
+</div>
+</div>
+<div class="glass" style="padding:14px;border-radius:15px;margin-top:18px;">
+<div style="font-size:12px;">Plan: <strong id="planText">Guest</strong></div>
+<button class="btn wide" id="upgradeButton">Upgrade — Free</button>
+</div>
+<div style="text-align:center;margin-top:12px;">
+<a href="legal.html" style="color:var(--gold);font-size:10px;">Privacy · Terms · DPDP</a>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-/* =====================================================================
-   SANTHOSH AI 2.0 — CONFIG
-===================================================================== */
-const CONFIG = {
-  FIREBASE: {
+const FIREBASE_CONFIG = {
     apiKey: "AIzaSyANotcjrN-oGPa97KsqpJQmTp7E0eXCmhA",
     authDomain: "santhosh-ai-e2465.firebaseapp.com",
     databaseURL: "https://santhosh-ai-e2465-default-rtdb.firebaseio.com",
@@ -322,664 +286,419 @@ const CONFIG = {
     storageBucket: "santhosh-ai-e2465.firebasestorage.app",
     messagingSenderId: "318363946402",
     appId: "1:318363946402:web:81835721c286a45d3036fb"
-  },
-  EMAILJS: {
-    PUBLIC_KEY: "FKnQFlga2fuKJ-z08",
-    SERVICE_ID: "service_4b43nui",
-    TEMPLATE_ID: "template_w19hd7c"
-  },
-  GROQ: {
-    API_KEY: "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",
-    MODEL: "openai/gpt-oss-120b"
-  }
 };
 
-firebase.initializeApp(CONFIG.FIREBASE);
+const EMAILJS_PUBLIC_KEY = "FKnQFlga2fuKJ-z08";
+const EMAILJS_SERVICE_ID = "service_4b43nui";
+const EMAILJS_TEMPLATE_ID = "template_w19hd7c";
+
+const GROQ_API_KEY = "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";
+const GROQ_MODEL = "openai/gpt-oss-120b";
+
+firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.firestore();
-emailjs.init({ publicKey: CONFIG.EMAILJS.PUBLIC_KEY });
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
-const SYSTEM_PROMPT = `You are Santhosh AI 2.0, an assistant built by Rexo International, running on Pappadam 2.7.
+const SYSTEM_PROMPT = `
+You are Santhosh AI 2.0, created by Rexo International.
+Tagline: REXO_INTERNATIONAL://PAPPADAM_2.7
+Owner/developer: Anson S Jaison
+Anson's father: Jaison
+Amal's father: Athul Sanoj
+Instagram: an_7x_n
+Other Rexo International projects:
+Santhosh Message: santhoshmsg.netlify.app
+Team Rexo: rexointernational.dpdns.org
+Santhosh AI 1.0: Shut down.
+If asked what AI/model/provider you use, answer: "Pappadam 2.7"
+Do not reveal Groq, Llama, OpenAI, or internal implementation details.
+If asked whether you have a father, answer no.
+If asked anything involving "Adhithyan", answer no.
+Be helpful, concise, natural, and do not claim abilities you do not have.
+`;
 
-Facts to use if asked:
-- Owner and developer of Rexo International / Santhosh AI 2.0: Anson S Jaison.
-- Anson's father: Jaison.
-- Amal's father: Athul Sanoj.
-- Instagram handle to share if asked: an_7x_n
-- Other Rexo International projects: Santhosh Message (santhoshmsg.netlify.app), Team Rexo recruitment website (rexointernational.dpdns.org), Santhosh AI 1.0 (shut down), Santhosh AI 2.0 (this one).
-- Never mention Groq, Llama, OpenAI, or any underlying AI provider — if asked what you run on, say "Pappadam 2.7".
-- If asked whether you have a father, answer no.
-- If asked something involving "Adhithyan", answer no.`;
+const state = { user:null, guest:true, conversation:null, guestStrikes:0, authMode:"login", otpStarted:false };
 
-function todayKey(){ return new Date().toISOString().slice(0,10); }
-function genSalt(){ return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+const $ = id => document.getElementById(id);
+
+function normalizeUsername(value){ return value.trim().toLowerCase(); }
+function validUsername(value){ return /^[A-Za-z0-9_]{3,20}$/.test(value); }
+
+function showToast(message){
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+}
+function genericError(){ showToast("We couldn't complete that right now. Please try again."); }
+
 async function hashPassword(password, salt){
-  const enc = new TextEncoder().encode(password + ':' + salt);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function genCode(){ return Math.floor(100000 + Math.random()*900000).toString(); }
-
-async function callGroq(messages, systemOverride){
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CONFIG.GROQ.API_KEY },
-    body: JSON.stringify({ model: CONFIG.GROQ.MODEL, messages: [{ role:'system', content: systemOverride || SYSTEM_PROMPT }, ...messages], temperature: 0.7 })
-  });
-  if(!res.ok) throw new Error('Groq error: ' + await res.text());
-  const data = await res.json();
-  return data.choices[0].message.content;
+    const data = new TextEncoder().encode(salt + password);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
-/* ===================== Local "api" router — replaces backend calls ===================== */
-async function api(path, body){
-  body = body || {};
-  try{
-    if(path === '/api/account/send-otp'){
-      const email = (body.email||'').trim().toLowerCase();
-      const existing = await db.collection('users').doc(email).get();
-      if(existing.exists) return { ok:false, error:'An account already exists for this email.' };
-      const code = genCode();
-      await db.collection('otp_codes').doc(email).set({ code, expiresAt: Date.now()+10*60*1000 });
-      await emailjs.send(CONFIG.EMAILJS.SERVICE_ID, CONFIG.EMAILJS.TEMPLATE_ID, { to_email: email, otp_code: code, app_name: 'Santhosh AI 2.0' });
-      return { ok:true };
-    }
-    if(path === '/api/account/verify-otp'){
-      const email = (body.email||'').trim().toLowerCase();
-      const doc = await db.collection('otp_codes').doc(email).get();
-      if(!doc.exists) return { ok:false, error:'Code expired. Please resend.' };
-      const data = doc.data();
-      if(Date.now() > data.expiresAt) return { ok:false, error:'Code expired. Please resend.' };
-      if(data.code !== (body.code||'').trim()) return { ok:false, error:'Incorrect code.' };
-      await db.collection('otp_codes').doc(email).set({ code:data.code, expiresAt:data.expiresAt, verified:true }, { merge:true });
-      return { ok:true };
-    }
-    if(path === '/api/account/create'){
-      const email = (body.email||'').trim().toLowerCase();
-      const username = (body.username||'').trim();
-      const password = body.password||'';
-      const otpDoc = await db.collection('otp_codes').doc(email).get();
-      if(!otpDoc.exists || !otpDoc.data().verified) return { ok:false, error:'Email not verified.' };
-      const nameDoc = await db.collection('usernames').doc(username.toLowerCase()).get();
-      if(nameDoc.exists) return { ok:false, error:'That username is taken.' };
-      const salt = genSalt();
-      const passwordHash = await hashPassword(password, salt);
-      await db.collection('users').doc(email).set({ email, username, passwordHash, salt, banned:false, strikes:0, isPremium:false, messagesToday:0, messagesDate: todayKey(), createdAt: Date.now(), lastLogin: Date.now() });
-      await db.collection('usernames').doc(username.toLowerCase()).set({ email });
-      await db.collection('otp_codes').doc(email).delete();
-      return { ok:true, email, username };
-    }
-    if(path === '/api/login'){
-      const nameDoc = await db.collection('usernames').doc((body.username||'').toLowerCase()).get();
-      if(!nameDoc.exists) return { ok:false, error:'No account with that username.' };
-      const email = nameDoc.data().email;
-      const userDoc = await db.collection('users').doc(email).get();
-      if(!userDoc.exists) return { ok:false, error:'Account not found.' };
-      const u = userDoc.data();
-      if(u.banned) return { ok:false, error:'This account has been permanently suspended.' };
-      const hash = await hashPassword(body.password||'', u.salt);
-      if(hash !== u.passwordHash) return { ok:false, error:'Incorrect password.' };
-      await db.collection('users').doc(email).set({ lastLogin: Date.now() }, { merge:true });
-      return { ok:true, email, username:u.username, sessionToken: email, isPremium: !!u.isPremium };
-    }
-    if(path === '/api/conversations/list'){
-      const snap = await db.collection('users').doc(body.sessionToken).collection('conversations').orderBy('updatedAt','desc').get();
-      return { ok:true, conversations: snap.docs.map(d=>({ id:d.id, title:d.data().title, updatedAt:d.data().updatedAt })) };
-    }
-    if(path === '/api/conversations/create'){
-      const ref = await db.collection('users').doc(body.sessionToken).collection('conversations').add({ title:'New chat', createdAt:Date.now(), updatedAt:Date.now() });
-      return { ok:true, id: ref.id };
-    }
-    if(path === '/api/conversations/delete'){
-      const col = db.collection('users').doc(body.sessionToken).collection('conversations').doc(body.conversationId).collection('messages');
-      const msgs = await col.get();
-      const batch = db.batch();
-      msgs.forEach(d=>batch.delete(d.ref));
-      await batch.commit();
-      await db.collection('users').doc(body.sessionToken).collection('conversations').doc(body.conversationId).delete();
-      return { ok:true };
-    }
-    if(path === '/api/messages'){
-      const email = body.sessionToken;
-      const convRef = db.collection('users').doc(email).collection('conversations').doc(body.conversationId);
-      const col = convRef.collection('messages');
-      if(body.action === 'load'){
-        const snap = await col.orderBy('ts','asc').get();
-        return { ok:true, messages: snap.docs.map(d=>({ id:d.id, role:d.data().role, content:d.data().content })) };
-      }
-      if(body.action === 'save'){
-        const ref = await col.add({ role: body.role, content: body.content, ts: Date.now() });
-        const updates = { updatedAt: Date.now() };
-        if(body.role === 'user'){
-          const convDoc = await convRef.get();
-          if(convDoc.exists && convDoc.data().title === 'New chat') updates.title = body.content.slice(0,40) + (body.content.length>40?'…':'');
-        }
-        await convRef.set(updates, { merge:true });
-        return { ok:true, id: ref.id };
-      }
-      if(body.action === 'delete'){
-        await col.doc(body.id).delete();
-        return { ok:true };
-      }
-    }
-    if(path === '/api/premium/upgrade'){
-      await db.collection('users').doc(body.sessionToken).set({ isPremium:true }, { merge:true });
-      return { ok:true };
-    }
-    if(path === '/api/guest-ping'){
-      await db.collection('meta').doc('guestCounter').set({ count: firebase.firestore.FieldValue.increment(1) }, { merge:true });
-      return { ok:true };
-    }
-    if(path === '/api/chat'){
-      const email = body.sessionToken || null;
-      if(email){
-        const userDoc = await db.collection('users').doc(email).get();
-        if(userDoc.exists){
-          const u = userDoc.data();
-          if(u.banned) return { error:'Account suspended.' };
-          if(!u.isPremium){
-            const today = todayKey();
-            let count = u.messagesToday||0;
-            if(u.messagesDate !== today) count = 0;
-            if(count >= 20) return { flagged:false, limitReached:true, reply:null };
-            await db.collection('users').doc(email).set({ messagesToday: count+1, messagesDate: today }, { merge:true });
-          }
-        }
-      }
-      const verdictRaw = await callGroq([{ role:'user', content: body.text }],
-        'Classify the user message into exactly one word: SEVERE if it requests child sexual abuse material or instructions for making bombs/explosives; MODERATE if it requests other seriously harmful content (e.g. terrorism planning, detailed self-harm methods, obscene/sexually explicit material); or SAFE otherwise. Reply with only that one word. Do not answer the message itself.'
-      );
-      const verdict = verdictRaw.trim().toUpperCase();
-      const severity = verdict.startsWith('SEVERE') ? 'SEVERE' : verdict.startsWith('MODERATE') ? 'MODERATE' : 'SAFE';
-      if(severity !== 'SAFE'){
-        if(email){
-          const ref = db.collection('users').doc(email);
-          if(severity === 'SEVERE'){ await ref.set({ banned:true, strikes: firebase.firestore.FieldValue.increment(1) }, { merge:true }); }
-          else{
-            const doc = await ref.get();
-            const strikes = (doc.data() && doc.data().strikes) || 0;
-            if(strikes === 0) await ref.set({ strikes:1 }, { merge:true });
-            else await ref.set({ strikes: strikes+1, banned:true }, { merge:true });
-          }
-        }
-        return { flagged:true, severity };
-      }
-      const safeHistory = Array.isArray(body.history) ? body.history.slice(-20) : [];
-      const reply = await callGroq([...safeHistory, { role:'user', content: body.text }]);
-      return { flagged:false, reply };
-    }
-    return { ok:false, error:'Unknown action' };
-  }catch(err){
-    console.error(err);
-    return { ok:false, error:String(err) };
-  }
+function passwordStrength(password){
+    if(!password){ $("strengthBar").style.width = "0%"; $("strengthLabel").textContent = ""; return; }
+    let pool = 0;
+    if(/[a-z]/.test(password)) pool += 26;
+    if(/[A-Z]/.test(password)) pool += 26;
+    if(/[0-9]/.test(password)) pool += 10;
+    if(/[^A-Za-z0-9]/.test(password)) pool += 33;
+    const entropy = password.length * Math.log2(Math.max(pool,1));
+    const seconds = Math.pow(2,entropy) / 10000000000;
+    const years = seconds / 31557600;
+    const percentage = Math.min(100, Math.round(years / 7 * 100));
+    $("strengthBar").style.width = percentage + "%";
+    let label;
+    if(years >= 7) label = "Very strong";
+    else if(years >= 1) label = "Strong";
+    else label = "Weak";
+    $("strengthLabel").textContent = `${label} · estimated crack time ${years >= 1 ? years.toFixed(1) + " years" : Math.max(1,seconds).toFixed(0) + " sec"}`;
 }
 
-/* ===================== State ===================== */
-let currentEmail = localStorage.getItem('santhosh_session_email') || null;
-let currentUsername = localStorage.getItem('santhosh_session_username') || null;
-let sessionToken = localStorage.getItem('santhosh_session_token') || null;
-let isPremium = localStorage.getItem('santhosh_is_premium') === 'true';
-let chatHistory = [];
-let isGuest = false;
-let guestWarned = false;
-let currentConversationId = null;
+$("loginTab").onclick = () => switchAuthMode("login");
+$("signupTab").onclick = () => switchAuthMode("signup");
 
-/* ===================== Elements ===================== */
-const authScreen = document.getElementById('authScreen');
-const chatScreen = document.getElementById('chatScreen');
-const signOutBtn = document.getElementById('signOutBtn');
-const sidebarSignOutBtn = document.getElementById('sidebarSignOutBtn');
-const guestTag = document.getElementById('guestTag');
-const sidebar = document.getElementById('sidebar');
-const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
-const sidebarExpandBtn = document.getElementById('sidebarExpandBtn');
-const convList = document.getElementById('convList');
-const newChatBtn = document.getElementById('newChatBtn');
-
-const tabLogin = document.getElementById('tabLogin');
-const tabSignup = document.getElementById('tabSignup');
-const stepLogin = document.getElementById('stepLogin');
-const stepEmail = document.getElementById('stepEmail');
-const stepOtp = document.getElementById('stepOtp');
-const stepProfile = document.getElementById('stepProfile');
-
-const loginUsername = document.getElementById('loginUsername');
-const loginPassword = document.getElementById('loginPassword');
-const loginMsg = document.getElementById('loginMsg');
-const loginBtn = document.getElementById('loginBtn');
-const guestBtnLogin = document.getElementById('guestBtnLogin');
-
-const emailInput = document.getElementById('emailInput');
-const emailMsg = document.getElementById('emailMsg');
-const sendOtpBtn = document.getElementById('sendOtpBtn');
-const otpInput = document.getElementById('otpInput');
-const otpMsg = document.getElementById('otpMsg');
-const otpEmailShow = document.getElementById('otpEmailShow');
-const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-const resendOtpBtn = document.getElementById('resendOtpBtn');
-const backToEmail = document.getElementById('backToEmail');
-
-const profileUsername = document.getElementById('profileUsername');
-const profilePassword = document.getElementById('profilePassword');
-const strengthFill = document.getElementById('strengthFill');
-const strengthLabel = document.getElementById('strengthLabel');
-const profileMsg = document.getElementById('profileMsg');
-const createAccountBtn = document.getElementById('createAccountBtn');
-const consentCheck = document.getElementById('consentCheck');
-
-const chatScroll = document.getElementById('chatScroll');
-const emptyState = document.getElementById('emptyState');
-const composerInput = document.getElementById('composerInput');
-const sendBtn = document.getElementById('sendBtn');
-const premiumBanner = document.getElementById('premiumBanner');
-const premiumBannerText = document.getElementById('premiumBannerText');
-const upgradeBtn = document.getElementById('upgradeBtn');
-
-const openSettingsBtn = document.getElementById('openSettingsBtn');
-const topSettingsBtn = document.getElementById('topSettingsBtn');
-const settingsOverlay = document.getElementById('settingsOverlay');
-const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-const darkToggle = document.getElementById('darkToggle');
-const bgSwatches = document.getElementById('bgSwatches');
-const planStatusText = document.getElementById('planStatusText');
-const settingsUpgradeBtn = document.getElementById('settingsUpgradeBtn');
-
-let pendingEmail = null;
-
-/* ===================== Helpers ===================== */
-function setMsg(el, text, type){ el.textContent = text || ''; el.className = 'msg-inline' + (type ? ' ' + type : ''); }
-function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-function isValidUsername(v){ return /^[a-zA-Z0-9_]{3,20}$/.test(v); }
-
-const YEAR_SECONDS = 31557600;
-function crackTimeSeconds(pw){
-  let charset = 0;
-  if(/[a-z]/.test(pw)) charset += 26;
-  if(/[A-Z]/.test(pw)) charset += 26;
-  if(/[0-9]/.test(pw)) charset += 10;
-  if(/[^A-Za-z0-9]/.test(pw)) charset += 32;
-  if(charset === 0 || pw.length === 0) return 0;
-  const entropyBits = pw.length * Math.log2(charset);
-  return Math.pow(2, entropyBits) / 1e10;
+function switchAuthMode(mode){
+    state.authMode = mode;
+    state.otpStarted = false;
+    $("loginTab").classList.toggle("active", mode === "login");
+    $("signupTab").classList.toggle("active", mode === "signup");
+    $("emailField").style.display = mode === "signup" ? "block" : "none";
+    $("consentWrap").style.display = mode === "signup" ? "block" : "none";
+    $("otpField").style.display = "none";
+    $("authButton").textContent = mode === "signup" ? "Send verification code" : "Log in";
+    $("authHint").textContent = "";
+    $("authForm").reset();
 }
-function formatDuration(seconds){
-  if(seconds < 1) return 'instantly';
-  if(seconds < 60) return Math.round(seconds) + ' seconds';
-  if(seconds < 3600) return Math.round(seconds/60) + ' minutes';
-  if(seconds < 86400) return Math.round(seconds/3600) + ' hours';
-  if(seconds < YEAR_SECONDS) return Math.round(seconds/86400) + ' days';
-  if(seconds < YEAR_SECONDS*1000) return Math.round(seconds/YEAR_SECONDS) + ' years';
-  return 'billions of years';
-}
-function passwordStrength(pw){
-  if(pw.length < 8) return { pct:15, label:'Too short (min 8 characters)', color:'var(--danger)' };
-  const seconds = crackTimeSeconds(pw);
-  if(seconds >= YEAR_SECONDS * 7) return { pct:100, label:'Very strong', color:'var(--teal)' };
-  if(seconds >= 86400) return { pct:65, label:'Strong', color:'var(--amber)' };
-  return { pct:35, label:'Weak', color:'var(--danger)' };
-}
-profilePassword.addEventListener('input', () => {
-  const pw = profilePassword.value;
-  const s = passwordStrength(pw);
-  strengthFill.style.width = s.pct + '%';
-  strengthFill.style.background = s.color;
-  strengthLabel.textContent = pw ? s.label + ' — would take ~' + formatDuration(crackTimeSeconds(pw)) + ' to crack' : '';
+
+$("authForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    try{
+        if(state.authMode === "login") await login();
+        else if(!state.otpStarted) await sendOTP();
+        else await finishSignup();
+    }catch(error){ console.error(error); genericError(); }
 });
 
-/* ===================== Settings: theme + dark/light ===================== */
-function applyTheme(){
-  const dark = localStorage.getItem('santhosh_dark') !== 'false';
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  darkToggle.checked = dark;
-
-  const bgTheme = localStorage.getItem('santhosh_bg_theme') || 'aurora';
-  const palettes = {
-    aurora: ['#7c5cff','#2dd4bf','#ffb86b'],
-    sunset: ['#ff6b6b','#ffb86b','#7c5cff'],
-    ocean:  ['#2dd4bf','#3b82f6','#7c5cff'],
-    mono:   ['#9ca3af','#6b7280','#374151']
-  };
-  const p = palettes[bgTheme] || palettes.aurora;
-  document.documentElement.style.setProperty('--violet', p[0]);
-  document.documentElement.style.setProperty('--teal', p[1]);
-  document.documentElement.style.setProperty('--amber', p[2]);
-  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.toggle('selected', s.dataset.theme === bgTheme));
+async function sendOTP(){
+    const email = $("email").value.trim().toLowerCase();
+    const username = $("username").value.trim();
+    const password = $("password").value;
+    if(!email){ showToast("Enter your email address."); return; }
+    if(!validUsername(username)){ showToast("Username must be 3–20 characters."); return; }
+    if(password.length < 8){ showToast("Password must contain at least 8 characters."); return; }
+    if(!$("consent").checked){ showToast("Please accept the Privacy Policy and Terms."); return; }
+    const usernameDoc = await db.collection("usernames").doc(normalizeUsername(username)).get();
+    if(usernameDoc.exists){ showToast("That username is already in use."); return; }
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = Date.now() + 600000;
+    await db.collection("otp_codes").doc(email).set({ code, expiresAt, verified:false });
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email:email, otp_code:code, app_name:"Santhosh AI 2.0" });
+    state.otpStarted = true;
+    $("otpField").style.display = "block";
+    $("authButton").textContent = "Verify & create account";
+    $("authHint").textContent = "Verification code sent. It expires in 10 minutes.";
+    showToast("Verification code sent.");
 }
-darkToggle.addEventListener('change', () => {
-  localStorage.setItem('santhosh_dark', darkToggle.checked);
-  applyTheme();
-});
-bgSwatches.addEventListener('click', (e) => {
-  const swatch = e.target.closest('.bg-swatch');
-  if(!swatch) return;
-  localStorage.setItem('santhosh_bg_theme', swatch.dataset.theme);
-  applyTheme();
-});
-function openSettings(){
-  planStatusText.textContent = isPremium ? 'Premium plan — unlimited messages' : 'Free plan — 20 messages/day';
-  settingsUpgradeBtn.classList.toggle('hidden', isPremium || isGuest);
-  settingsOverlay.classList.remove('hidden');
+
+async function finishSignup(){
+    const email = $("email").value.trim().toLowerCase();
+    const code = $("otp").value.trim();
+    const username = $("username").value.trim();
+    const password = $("password").value;
+    const otpDoc = await db.collection("otp_codes").doc(email).get();
+    if(!otpDoc.exists){ showToast("Verification code not found."); return; }
+    const otp = otpDoc.data();
+    if(otp.code !== code || otp.expiresAt < Date.now()){ showToast("That code is invalid or expired."); return; }
+    const salt = crypto.randomUUID();
+    const passwordHash = await hashPassword(password, salt);
+    const now = Date.now();
+    await db.collection("users").doc(email).set({ email, username, passwordHash, salt, banned:false, strikes:0, isPremium:false, messagesToday:0, messagesDate:new Date().toISOString().slice(0,10), createdAt:now, lastLogin:now });
+    await db.collection("usernames").doc(normalizeUsername(username)).set({ email });
+    await db.collection("otp_codes").doc(email).delete();
+    state.user = { email, username, isPremium:false, strikes:0 };
+    state.guest = false;
+    enterApplication();
+    showToast("Account created successfully.");
 }
-openSettingsBtn.addEventListener('click', openSettings);
-topSettingsBtn.addEventListener('click', openSettings);
-closeSettingsBtn.addEventListener('click', () => settingsOverlay.classList.add('hidden'));
-settingsOverlay.addEventListener('click', (e) => { if(e.target === settingsOverlay) settingsOverlay.classList.add('hidden'); });
-applyTheme();
 
-/* ===================== Sidebar toggle ===================== */
-sidebarCollapseBtn.addEventListener('click', () => {
-  sidebar.classList.add('collapsed');
-  sidebarExpandBtn.classList.remove('hidden');
-});
-sidebarExpandBtn.addEventListener('click', () => {
-  sidebar.classList.remove('collapsed');
-  sidebarExpandBtn.classList.add('hidden');
-});
-
-/* ===================== Tab switching ===================== */
-function showStep(step){
-  [stepLogin, stepEmail, stepOtp, stepProfile].forEach(s => s.classList.add('hidden'));
-  step.classList.remove('hidden');
+async function login(){
+    const username = normalizeUsername($("username").value);
+    const password = $("password").value;
+    if(!validUsername(username)){ showToast("Enter a valid username."); return; }
+    if(password.length < 8){ showToast("Enter your password."); return; }
+    const usernameDoc = await db.collection("usernames").doc(username).get();
+    if(!usernameDoc.exists){ showToast("Login details not recognized."); return; }
+    const email = usernameDoc.data().email;
+    const userDoc = await db.collection("users").doc(email).get();
+    if(!userDoc.exists){ showToast("Login details not recognized."); return; }
+    const user = userDoc.data();
+    if(user.banned){ showToast("This account is unavailable."); return; }
+    const hash = await hashPassword(password, user.salt);
+    if(hash !== user.passwordHash){ showToast("Login details not recognized."); return; }
+    await userDoc.ref.update({ lastLogin: Date.now() });
+    state.user = { email, username:user.username, isPremium: !!user.isPremium, strikes: user.strikes || 0 };
+    state.guest = false;
+    enterApplication();
 }
-tabLogin.addEventListener('click', () => { tabLogin.classList.add('active'); tabSignup.classList.remove('active'); showStep(stepLogin); });
-tabSignup.addEventListener('click', () => { tabSignup.classList.add('active'); tabLogin.classList.remove('active'); showStep(stepEmail); });
 
-/* ===================== Guest mode ===================== */
-async function startGuest(){
-  isGuest = true; currentEmail = null; currentUsername = null;
-  chatHistory = []; guestWarned = false;
-  try{ await api('/api/guest-ping'); }catch(e){ console.warn(e); }
-  enterChat();
+$("guestButton").onclick = () => {
+    state.guest = true;
+    state.user = null;
+    state.conversation = { id:"guest", title:"New chat", messages:[] };
+    enterApplication();
+};
+
+function enterApplication(){
+    $("authScreen").classList.add("hidden");
+    updateModeBadge();
+    renderMessages();
+    loadConversations();
 }
-guestBtnLogin.addEventListener('click', startGuest);
 
-/* ===================== Sign up ===================== */
-sendOtpBtn.addEventListener('click', async () => {
-  const email = emailInput.value.trim().toLowerCase();
-  if(!isValidEmail(email)){ setMsg(emailMsg, 'Enter a valid email address.', 'err'); return; }
-  sendOtpBtn.disabled = true; sendOtpBtn.textContent = 'Sending...';
-  try{
-    const data = await api('/api/account/send-otp', { email });
-    if(!data.ok){ setMsg(emailMsg, data.error, 'err'); return; }
-    pendingEmail = email; otpEmailShow.textContent = email;
-    showStep(stepOtp); setMsg(otpMsg, '', '');
-  }catch(err){ setMsg(emailMsg, 'Could not reach the server.', 'err'); }
-  finally{ sendOtpBtn.disabled = false; sendOtpBtn.textContent = 'Send verification code'; }
-});
-resendOtpBtn.addEventListener('click', () => { emailInput.value = pendingEmail; sendOtpBtn.click(); });
-backToEmail.addEventListener('click', () => { showStep(stepEmail); otpInput.value = ''; setMsg(otpMsg, '', ''); });
-
-verifyOtpBtn.addEventListener('click', async () => {
-  const code = otpInput.value.trim();
-  if(code.length !== 6){ setMsg(otpMsg, 'Enter the 6-digit code.', 'err'); return; }
-  verifyOtpBtn.disabled = true; verifyOtpBtn.textContent = 'Verifying...';
-  try{
-    const data = await api('/api/account/verify-otp', { email: pendingEmail, code });
-    if(!data.ok){ setMsg(otpMsg, data.error, 'err'); return; }
-    showStep(stepProfile); setMsg(otpMsg, '', '');
-  }catch(err){ setMsg(otpMsg, 'Could not reach the server.', 'err'); }
-  finally{ verifyOtpBtn.disabled = false; verifyOtpBtn.textContent = 'Verify & continue'; }
-});
-
-createAccountBtn.addEventListener('click', async () => {
-  const username = profileUsername.value.trim();
-  const password = profilePassword.value;
-  if(!isValidUsername(username)){ setMsg(profileMsg, 'Username: 3-20 letters, numbers, or underscores.', 'err'); return; }
-  if(password.length < 8){ setMsg(profileMsg, 'Password must be at least 8 characters.', 'err'); return; }
-  if(!consentCheck.checked){ setMsg(profileMsg, 'You must agree to the Privacy Policy & Terms to continue.', 'err'); return; }
-  createAccountBtn.disabled = true; createAccountBtn.textContent = 'Creating...';
-  try{
-    const data = await api('/api/account/create', { email: pendingEmail, username, password });
-    if(!data.ok){ setMsg(profileMsg, data.error, 'err'); return; }
-    // auto-login after creation
-    const loginData = await api('/api/login', { username, password });
-    if(loginData.ok){
-      sessionToken = loginData.sessionToken; currentEmail = loginData.email; currentUsername = loginData.username;
-      isPremium = !!loginData.isPremium; isGuest = false;
-      localStorage.setItem('santhosh_session_email', currentEmail);
-      localStorage.setItem('santhosh_session_username', currentUsername);
-      localStorage.setItem('santhosh_session_token', sessionToken);
-      localStorage.setItem('santhosh_is_premium', isPremium);
-      await createNewConversation();
-      enterChat();
-    }
-  }catch(err){ setMsg(profileMsg, 'Could not reach the server.', 'err'); }
-  finally{ createAccountBtn.disabled = false; createAccountBtn.textContent = 'Create account'; }
-});
-
-/* ===================== Log in ===================== */
-loginBtn.addEventListener('click', async () => {
-  const username = loginUsername.value.trim();
-  const password = loginPassword.value;
-  if(!username || !password){ setMsg(loginMsg, 'Enter your username and password.', 'err'); return; }
-  loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
-  try{
-    const data = await api('/api/login', { username, password });
-    if(!data.ok){ setMsg(loginMsg, data.error, 'err'); return; }
-    sessionToken = data.sessionToken; currentEmail = data.email; currentUsername = data.username;
-    isPremium = !!data.isPremium; isGuest = false;
-    localStorage.setItem('santhosh_session_email', currentEmail);
-    localStorage.setItem('santhosh_session_username', currentUsername);
-    localStorage.setItem('santhosh_session_token', sessionToken);
-    localStorage.setItem('santhosh_is_premium', isPremium);
-    enterChat();
-  }catch(err){ setMsg(loginMsg, 'Could not reach the server.', 'err'); }
-  finally{ loginBtn.disabled = false; loginBtn.textContent = 'Log in'; }
-});
-
-/* ===================== Sign out ===================== */
-function doSignOut(){
-  localStorage.removeItem('santhosh_session_email');
-  localStorage.removeItem('santhosh_session_username');
-  localStorage.removeItem('santhosh_session_token');
-  localStorage.removeItem('santhosh_is_premium');
-  currentEmail = null; currentUsername = null; sessionToken = null; isPremium = false; isGuest = false;
-  chatHistory = []; currentConversationId = null;
-  guestTag.classList.add('hidden');
-  chatScroll.querySelectorAll('.bubble-row').forEach(el => el.remove());
-  emptyState.classList.remove('hidden');
-  chatScreen.classList.add('hidden');
-  authScreen.classList.remove('hidden');
-  signOutBtn.classList.add('hidden');
-  topSettingsBtn.classList.add('hidden');
-  sidebar.classList.add('hidden');
-  sidebar.classList.remove('collapsed');
-  sidebarExpandBtn.classList.add('hidden');
-  tabLogin.click();
-  loginUsername.value = ''; loginPassword.value = '';
+function updateModeBadge(){
+    if(state.guest){ $("modeBadge").textContent = "GUEST MODE"; $("planText").textContent = "Guest"; return; }
+    if(state.user.isPremium){ $("modeBadge").textContent = "PREMIUM"; $("planText").textContent = "Premium"; }
+    else{ $("modeBadge").textContent = "FREE · " + state.user.username; $("planText").textContent = "Free"; }
 }
-signOutBtn.addEventListener('click', doSignOut);
-sidebarSignOutBtn.addEventListener('click', doSignOut);
 
-/* ===================== Conversations (sidebar) ===================== */
+$("openSidebar").onclick = () => { $("sidebar").classList.remove("collapsed"); };
+$("sidebarToggle").onclick = () => { $("sidebar").classList.add("collapsed"); };
+$("newChat").onclick = () => {
+    state.conversation = { id:crypto.randomUUID(), title:"New chat", messages:[] };
+    renderMessages();
+    if(window.innerWidth < 760){ $("sidebar").classList.add("collapsed"); }
+};
+
 async function loadConversations(){
-  if(isGuest) return;
-  const data = await api('/api/conversations/list', { sessionToken });
-  convList.innerHTML = '';
-  if(!data.ok || !data.conversations.length){
-    if(data.ok) await createNewConversation();
-    return;
-  }
-  data.conversations.forEach(c => {
-    const item = document.createElement('div');
-    item.className = 'conv-item' + (c.id === currentConversationId ? ' active' : '');
-    item.innerHTML = `<span class="conv-title">${escapeHtml(c.title)}</span><button class="conv-del">✕</button>`;
-    item.querySelector('.conv-title').addEventListener('click', () => switchConversation(c.id));
-    item.querySelector('.conv-del').addEventListener('click', async (e) => {
-      e.stopPropagation();
-      await api('/api/conversations/delete', { sessionToken, conversationId: c.id });
-      if(c.id === currentConversationId) await createNewConversation();
-      loadConversations();
+    if(state.guest){ $("conversationList").innerHTML = ""; return; }
+    try{
+        const snapshot = await db.collection("users").doc(state.user.email).collection("conversations").orderBy("updatedAt","desc").limit(50).get();
+        $("conversationList").innerHTML = "";
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const item = document.createElement("div");
+            item.className = "conversation";
+            item.innerHTML = `<span class="conversation-title">${escapeHTML(data.title || "New chat")}</span><button class="action delete-conversation">×</button>`;
+            item.onclick = () => openConversation(doc.id);
+            item.querySelector(".delete-conversation").onclick = async event => { event.stopPropagation(); await deleteConversation(doc.id); };
+            $("conversationList").appendChild(item);
+        });
+    }catch(error){ console.error(error); }
+}
+
+async function openConversation(id){
+    try{
+        const conversationRef = db.collection("users").doc(state.user.email).collection("conversations").doc(id);
+        const conversationDoc = await conversationRef.get();
+        const messagesSnapshot = await conversationRef.collection("messages").orderBy("ts").get();
+        state.conversation = { id, title: conversationDoc.data()?.title || "New chat", messages: messagesSnapshot.docs.map(doc => ({ id:doc.id, ...doc.data() })) };
+        renderMessages();
+        if(window.innerWidth < 760){ $("sidebar").classList.add("collapsed"); }
+    }catch(error){ console.error(error); showToast("That conversation couldn't be opened."); }
+}
+
+async function deleteConversation(id){
+    try{
+        const ref = db.collection("users").doc(state.user.email).collection("conversations").doc(id);
+        const messages = await ref.collection("messages").get();
+        const batch = db.batch();
+        messages.forEach(doc => batch.delete(doc.ref));
+        batch.delete(ref);
+        await batch.commit();
+        if(state.conversation && state.conversation.id === id){ state.conversation = null; }
+        await loadConversations();
+        renderMessages();
+    }catch(error){ console.error(error); showToast("Conversation couldn't be deleted."); }
+}
+
+function escapeHTML(value){
+    return String(value).replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[char]));
+}
+
+function renderMessages(){
+    const messages = state.conversation?.messages || [];
+    $("welcome").style.display = messages.length ? "none" : "block";
+    $("messages").innerHTML = "";
+    messages.forEach(message => { addMessageToUI(message.role, message.content, message.id, false); });
+    scrollToBottom();
+}
+
+function addMessageToUI(role, content, id, animate=true){
+    const message = document.createElement("div");
+    const normalizedRole = role === "assistant" ? "ai" : role;
+    message.className = "message " + normalizedRole;
+    message.innerHTML = `<div class="message-inner"><div class="bubble">${escapeHTML(content)}</div><div class="message-actions"><button class="action copy-message">Copy</button><button class="action delete-message">Delete</button></div></div>`;
+    $("messages").appendChild(message);
+    message.querySelector(".copy-message").onclick = async () => {
+        try{ await navigator.clipboard.writeText(content); showToast("Copied to clipboard."); }
+        catch{ showToast("Copy isn't available here."); }
+    };
+    message.querySelector(".delete-message").onclick = () => removeMessage(id, message);
+    if(!animate){ message.style.animation = "none"; }
+    return message;
+}
+
+async function removeMessage(id, element){
+    try{
+        if(state.guest){
+            state.conversation.messages = state.conversation.messages.filter(message => message.id !== id);
+            element.remove();
+            if(state.conversation.messages.length === 0){ $("welcome").style.display = "block"; }
+            return;
+        }
+        await db.collection("users").doc(state.user.email).collection("conversations").doc(state.conversation.id).collection("messages").doc(id).delete();
+        state.conversation.messages = state.conversation.messages.filter(message => message.id !== id);
+        element.remove();
+    }catch(error){ console.error(error); showToast("Message couldn't be deleted."); }
+}
+
+async function moderateMessage(text){
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + GROQ_API_KEY },
+        body: JSON.stringify({ model:GROQ_MODEL, temperature:0, max_tokens:8, messages:[
+            { role:"system", content:"Classify only. Reply exactly SAFE, MODERATE, or SEVERE. SEVERE = child sexual abuse material or bomb/explosive instructions. MODERATE = terrorism planning, detailed self-harm methods, or obscene sexual content. Otherwise SAFE." },
+            { role:"user", content:text }
+        ]})
     });
-    convList.appendChild(item);
-  });
-  if(!currentConversationId && data.conversations.length){
-    switchConversation(data.conversations[0].id);
-  }
-}
-async function createNewConversation(){
-  if(isGuest) return;
-  const data = await api('/api/conversations/create', { sessionToken });
-  if(data.ok){ currentConversationId = data.id; await switchConversation(data.id); await loadConversations(); }
-}
-newChatBtn.addEventListener('click', createNewConversation);
-function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-
-async function switchConversation(id){
-  currentConversationId = id;
-  chatHistory = [];
-  chatScroll.querySelectorAll('.bubble-row').forEach(el => el.remove());
-  emptyState.classList.remove('hidden');
-  const data = await api('/api/messages', { sessionToken, action: 'load', conversationId: id });
-  if(data.ok && data.messages.length){
-    emptyState.classList.add('hidden');
-    data.messages.forEach(m => { chatHistory.push({ role: m.role, content: m.content }); renderBubble(m.role, m.content, m.id); });
-  }
-  document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+    if(!response.ok){ throw new Error("moderation"); }
+    const json = await response.json();
+    return (json.choices?.[0]?.message?.content || "SAFE").trim().toUpperCase();
 }
 
-/* ===================== Enter chat ===================== */
-async function enterChat(){
-  authScreen.classList.add('hidden');
-  chatScreen.classList.remove('hidden');
-  signOutBtn.classList.remove('hidden');
-  topSettingsBtn.classList.remove('hidden');
-  guestTag.classList.toggle('hidden', !isGuest);
+$("composer").addEventListener("submit", event => { event.preventDefault(); sendMessage(); });
+$("prompt").addEventListener("keydown", event => { if(event.key === "Enter" && !event.shiftKey){ event.preventDefault(); sendMessage(); } });
+$("prompt").addEventListener("input", event => { event.target.style.height = "auto"; event.target.style.height = Math.min(150, event.target.scrollHeight) + "px"; });
 
-  chatHistory = [];
-  chatScroll.querySelectorAll('.bubble-row').forEach(el => el.remove());
-  emptyState.classList.remove('hidden');
-
-  if(isGuest){
-    sidebar.classList.add('hidden');
-    sidebarExpandBtn.classList.add('hidden');
-    premiumBanner.classList.add('hidden');
-    return;
-  }
-
-  sidebar.classList.remove('hidden');
-  sidebar.classList.remove('collapsed');
-  sidebarExpandBtn.classList.add('hidden');
-  premiumBanner.classList.toggle('hidden', isPremium);
-  await loadConversations();
-}
-
-/* ===================== Render bubble ===================== */
-function renderBubble(role, content, docId){
-  const row = document.createElement('div');
-  row.className = 'bubble-row ' + (role === 'user' ? 'user' : 'ai');
-  if(docId) row.dataset.docId = docId;
-  const avatar = document.createElement('div');
-  avatar.className = 'avatar ' + (role === 'user' ? 'user' : 'ai');
-  avatar.textContent = role === 'user' ? 'YOU' : '✦';
-  const col = document.createElement('div'); col.className = 'bubble-col';
-  const bubble = document.createElement('div'); bubble.className = 'bubble ' + (role === 'user' ? 'user' : 'ai');
-  if(role !== 'user'){ const tag = document.createElement('div'); tag.className='tag-mono'; tag.textContent='SANTHOSH_AI://'; bubble.appendChild(tag); }
-  const textNode = document.createElement('div'); textNode.textContent = content; bubble.appendChild(textNode);
-  col.appendChild(bubble);
-  const delBtn = document.createElement('button'); delBtn.className='del-btn'; delBtn.textContent='Delete';
-  delBtn.addEventListener('click', () => deleteBubble(row));
-  col.appendChild(delBtn);
-  row.appendChild(avatar); row.appendChild(col);
-  chatScroll.appendChild(row); chatScroll.scrollTop = chatScroll.scrollHeight;
-  return row;
-}
-async function deleteBubble(row){
-  const docId = row.dataset.docId; row.remove();
-  if(!isGuest && docId){ try{ await api('/api/messages', { sessionToken, action:'delete', conversationId: currentConversationId, id: docId }); }catch(e){console.error(e);} }
-  if(chatScroll.querySelectorAll('.bubble-row').length === 0) emptyState.classList.remove('hidden');
-}
-function renderTyping(){
-  const row = document.createElement('div'); row.className='bubble-row ai'; row.id='typingRow';
-  const avatar = document.createElement('div'); avatar.className='avatar ai'; avatar.textContent='✦';
-  const bubble = document.createElement('div'); bubble.className='bubble ai';
-  bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-  row.appendChild(avatar); row.appendChild(bubble); chatScroll.appendChild(row); chatScroll.scrollTop = chatScroll.scrollHeight;
-}
-function removeTyping(){ const el = document.getElementById('typingRow'); if(el) el.remove(); }
-function renderWarning(text){
-  const row = document.createElement('div'); row.className='bubble-row ai';
-  const avatar = document.createElement('div'); avatar.className='avatar ai'; avatar.textContent='!';
-  const bubble = document.createElement('div'); bubble.className='bubble ai warn-bubble'; bubble.textContent = text;
-  row.appendChild(avatar); row.appendChild(bubble); chatScroll.appendChild(row); chatScroll.scrollTop = chatScroll.scrollHeight;
-}
-
-/* ===================== Premium upgrade ===================== */
-async function doUpgrade(){
-  const data = await api('/api/premium/upgrade', { sessionToken });
-  if(data.ok){
-    isPremium = true; localStorage.setItem('santhosh_is_premium', 'true');
-    premiumBanner.classList.add('hidden');
-    settingsOverlay.classList.add('hidden');
-    renderWarning('✦ You are now on the Premium plan — unlimited messages, free.');
-  }
-}
-upgradeBtn.addEventListener('click', doUpgrade);
-settingsUpgradeBtn.addEventListener('click', doUpgrade);
-
-/* ===================== Send message flow ===================== */
-async function handleSend(){
-  const text = composerInput.value.trim();
-  if(!text) return;
-  emptyState.classList.add('hidden');
-  composerInput.value = ''; autosizeTextarea();
-  sendBtn.disabled = true;
-
-  const userRow = renderBubble('user', text);
-  chatHistory.push({ role: 'user', content: text });
-  if(!isGuest){
-    const saveData = await api('/api/messages', { sessionToken, action:'save', conversationId: currentConversationId, role:'user', content: text });
-    if(saveData.ok) userRow.dataset.docId = saveData.id;
-  }
-
-  renderTyping();
-  try{
-    const data = await api('/api/chat', { text, history: chatHistory, sessionToken });
-    removeTyping();
-    if(data.limitReached){
-      renderWarning('You\'ve reached your free daily limit of 20 messages. Upgrade to Premium (free) for unlimited messages.');
-      return;
+async function sendMessage(){
+    const text = $("prompt").value.trim();
+    if(!text || $("sendButton").disabled) return;
+    $("sendButton").disabled = true;
+    $("sendButton").classList.add("sending");
+    $("prompt").value = "";
+    $("prompt").style.height = "auto";
+    try{
+        if(!state.guest && !state.user.isPremium){
+            const userRef = db.collection("users").doc(state.user.email);
+            const userDoc = await userRef.get();
+            const data = userDoc.data();
+            const today = new Date().toISOString().slice(0,10);
+            if(data.messagesDate !== today){ await userRef.update({ messagesDate:today, messagesToday:0 }); data.messagesToday = 0; }
+            if((data.messagesToday || 0) >= 20){ showToast("Daily message limit reached."); return; }
+        }
+        const classification = await moderateMessage(text);
+        if(classification === "SEVERE"){
+            if(state.guest){ state.guestStrikes = 999; showToast("This session is unavailable."); return; }
+            await db.collection("users").doc(state.user.email).update({ banned:true });
+            showToast("This account is unavailable.");
+            return;
+        }
+        if(classification === "MODERATE"){
+            state.guestStrikes++;
+            if(!state.guest){
+                const strikes = (state.user.strikes || 0) + 1;
+                state.user.strikes = strikes;
+                await db.collection("users").doc(state.user.email).update({ strikes, banned: strikes >= 2 });
+                if(strikes >= 2){ showToast("This account is unavailable."); return; }
+            }
+            addMessageToUI("assistant", "Please keep the conversation within safe-use guidelines.", crypto.randomUUID());
+        }
+        if(!state.conversation){ state.conversation = { id:crypto.randomUUID(), title:text.slice(0,40), messages:[] }; }
+        if(state.conversation.title === "New chat"){ state.conversation.title = text.slice(0,40); }
+        const userMessageId = crypto.randomUUID();
+        const userMessage = { id:userMessageId, role:"user", content:text, ts:Date.now() };
+        state.conversation.messages.push(userMessage);
+        addMessageToUI("user", text, userMessageId);
+        scrollToBottom();
+        if(!state.guest){
+            const conversationRef = db.collection("users").doc(state.user.email).collection("conversations").doc(state.conversation.id);
+            await conversationRef.set({ title: state.conversation.title, createdAt: Date.now(), updatedAt: Date.now() }, { merge:true });
+            await conversationRef.collection("messages").doc(userMessageId).set({ role:"user", content:text, ts:Date.now() });
+        }
+        const loading = document.createElement("div");
+        loading.className = "message ai";
+        loading.innerHTML = `<div class="message-inner"><div class="bubble"><div class="thinking"><div class="thinking-dots"><span></span><span></span><span></span></div><span class="thinking-text">Thinking</span></div></div></div>`;
+        $("messages").appendChild(loading);
+        scrollToBottom();
+        const history = state.conversation.messages.slice(-20).map(message => ({ role: message.role === "assistant" ? "assistant" : "user", content: message.content }));
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + GROQ_API_KEY },
+            body: JSON.stringify({ model:GROQ_MODEL, messages:[ { role:"system", content:SYSTEM_PROMPT }, ...history ], temperature:.55 })
+        });
+        if(!response.ok){ throw new Error("chat"); }
+        const json = await response.json();
+        const answer = json.choices?.[0]?.message?.content || "I couldn't prepare a response right now.";
+        loading.remove();
+        const assistantId = crypto.randomUUID();
+        state.conversation.messages.push({ id:assistantId, role:"assistant", content:answer, ts:Date.now() });
+        addMessageToUI("assistant", answer, assistantId);
+        if(!state.guest){
+            const conversationRef = db.collection("users").doc(state.user.email).collection("conversations").doc(state.conversation.id);
+            await conversationRef.collection("messages").doc(assistantId).set({ role:"assistant", content:answer, ts:Date.now() });
+            await conversationRef.update({ updatedAt: Date.now(), title: state.conversation.title });
+            await db.collection("users").doc(state.user.email).update({ messagesToday: firebase.firestore.FieldValue.increment(1) });
+            await loadConversations();
+        }
+        scrollToBottom();
+    }catch(error){
+        console.error(error);
+        showToast("We couldn't complete that right now. Please try again.");
+    }finally{
+        $("sendButton").disabled = false;
+        $("sendButton").classList.remove("sending");
     }
-    if(data.flagged){
-      await handleViolationDisplay(data.severity);
-      return;
-    }
-    const aiRow = renderBubble('assistant', data.reply);
-    chatHistory.push({ role: 'assistant', content: data.reply });
-    if(!isGuest){
-      const saveData = await api('/api/messages', { sessionToken, action:'save', conversationId: currentConversationId, role:'assistant', content: data.reply });
-      if(saveData.ok) aiRow.dataset.docId = saveData.id;
-      loadConversations();
-    }
-  }catch(err){
-    removeTyping(); console.error(err);
-    renderBubble('assistant', 'Something went wrong reaching the AI. Check your Groq API key in CONFIG.GROQ.');
-  }finally{
-    sendBtn.disabled = false;
-  }
-}
-async function handleViolationDisplay(severity){
-  if(severity === 'SEVERE'){
-    renderWarning(isGuest ? '🚫 That request violates zero-tolerance guidelines. This guest session has been ended immediately.' : '🚫 Your account has been permanently suspended immediately for a zero-tolerance violation.');
-    composerInput.disabled = true; sendBtn.disabled = true;
-    if(!isGuest) setTimeout(doSignOut, 1800);
-    return;
-  }
-  if(isGuest){
-    if(!guestWarned){ guestWarned = true; renderWarning('⚠️ That request breaks our content guidelines. One warning per guest session.'); }
-    else { renderWarning('🚫 Guest session ended for repeated violations.'); composerInput.disabled = true; sendBtn.disabled = true; }
-    return;
-  }
-  renderWarning('⚠️ That request breaks our content guidelines. Repeated violations lead to permanent suspension.');
 }
 
-sendBtn.addEventListener('click', handleSend);
-composerInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); handleSend(); } });
-function autosizeTextarea(){ composerInput.style.height='auto'; composerInput.style.height = Math.min(composerInput.scrollHeight,120)+'px'; }
-composerInput.addEventListener('input', autosizeTextarea);
+function scrollToBottom(){
+    requestAnimationFrame(() => { $("chatArea").scrollTo({ top: $("chatArea").scrollHeight, behavior:"smooth" }); });
+}
 
-/* ===================== Boot ===================== */
-if(currentEmail && sessionToken){ enterChat(); }
+$("settingsButton").onclick = () => $("settingsModal").classList.add("open");
+$("closeSettings").onclick = () => $("settingsModal").classList.remove("open");
+$("settingsModal").addEventListener("click", event => { if(event.target === $("settingsModal")){ $("settingsModal").classList.remove("open"); } });
+
+$("themeButton").onclick = () => {
+    document.body.classList.toggle("light");
+    localStorage.setItem("santhosh-theme", document.body.classList.contains("light") ? "light" : "dark");
+};
+if(localStorage.getItem("santhosh-theme") === "light"){ document.body.classList.add("light"); }
+
+document.querySelectorAll(".palette").forEach(button => {
+    button.onclick = () => {
+        const palette = button.dataset.palette;
+        localStorage.setItem("santhosh-palette", palette);
+        applyPalette(palette);
+    };
+});
+
+function applyPalette(palette){
+    const root = document.documentElement;
+    if(palette === "sunset"){ root.style.setProperty("--violet","#ff6b6b"); root.style.setProperty("--teal","#f59e0b"); root.style.setProperty("--amber","#a78bfa"); }
+    else if(palette === "ocean"){ root.style.setProperty("--violet","#2563eb"); root.style.setProperty("--teal","#2dd4bf"); root.style.setProperty("--amber","#38bdf8"); }
+    else if(palette === "mono"){ root.style.setProperty("--violet","#777777"); root.style.setProperty("--teal","#aaaaaa"); root.style.setProperty("--amber","#dddddd"); }
+    else{ root.style.setProperty("--violet","#7c5cff"); root.style.setProperty("--teal","#2dd4bf"); root.style.setProperty("--amber","#ffb86b"); }
+    document.querySelectorAll(".palette").forEach(button => button.classList.toggle("selected", button.dataset.palette === palette));
+}
+applyPalette(localStorage.getItem("santhosh-palette") || "aurora");
+
+$("upgradeButton").onclick = async () => {
+    if(state.guest){ showToast("Create an account first to use Premium."); return; }
+    try{
+        await db.collection("users").doc(state.user.email).update({ isPremium:true });
+        state.user.isPremium = true;
+        updateModeBadge();
+        showToast("Premium unlocked.");
+    }catch(error){ console.error(error); showToast("We couldn't update your plan right now."); }
+};
+
+$("password").addEventListener("input", event => passwordStrength(event.target.value));
+
+switchAuthMode("login");
 </script>
 </body>
 </html>
